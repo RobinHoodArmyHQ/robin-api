@@ -1,0 +1,20 @@
+name: "robin-api"
+
+services:
+  robin-api:
+    container_name: robin-api
+    hostname: robin-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./configs:/root/configs
+    restart: unless-stopped
+    networks:
+      - rha_local
+
+networks:
+  rha_local:
+    name: "rha_local_net"
