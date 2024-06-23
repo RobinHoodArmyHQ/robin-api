@@ -1,4 +1,4 @@
-version: '3.9'
+name: "robin-api"
 
 services:
   robin-api:
@@ -16,7 +16,7 @@ services:
       DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: password
-      DB_NAME: robin-development
+      DB_NAME: rha-development 
     volumes:
       - ./configs:/root/configs
     restart: unless-stopped
@@ -30,7 +30,7 @@ services:
       - SYS_NICE
     restart: always
     environment: 
-      - MYSQL_DATABASE=robin-development
+      - MYSQL_DATABASE=rha-development
       - MYSQL_ROOT_PASSWORD=password
     volumes:
     - db-data:/var/lib/mysql
