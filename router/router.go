@@ -5,11 +5,13 @@ import (
 	"net/http"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/auth"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/event"
 	"github.com/gin-gonic/gin"
 	"github.com/nanmu42/gzip"
 )
 
-func Initialize(ctx context.Context) *gin.Engine {
+func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 	r := gin.New()
 	r.ContextWithFallback = true
 
@@ -18,6 +20,9 @@ func Initialize(ctx context.Context) *gin.Engine {
 
 	// compress responses using gzip
 	r.Use(gzip.DefaultHandler().Gin)
+
+	// add env to the context
+	r.Use(env.MiddleWare(ev))
 
 	// health check route
 	r.GET("/health", HealthcheckHandler)
@@ -33,7 +38,15 @@ func Initialize(ctx context.Context) *gin.Engine {
 		authRoutes.POST("", auth.AuthHandler)
 	}
 
+	eventGroup := r.Group("/event")
+	eventGroup.Use(isUserLoggedIn)
+	setupEventGroup(eventGroup)
+
 	return r
+}
+
+func setupEventGroup(eventGroup *gin.RouterGroup) {
+	eventGroup.POST("/", isAdminUser, event.CreateEventHandler)
 }
 
 func HealthcheckHandler(c *gin.Context) {
