@@ -16,7 +16,7 @@ services:
       DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: password
-      DB_NAME: rha-development 
+      DB_NAME: rha 
     volumes:
       - ./configs:/root/configs
     restart: unless-stopped
