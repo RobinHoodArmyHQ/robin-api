@@ -36,6 +36,14 @@ services:
     - db-data:/var/lib/mysql
     ports:
       - '3306:3306'
+      
+  robin-db-ui:
+    container_name: robin-db-ui
+    image: adminer:4.8.1
+    ports:
+      - "8089:8080"
+    depends_on:
+      - robin-db
 
 volumes:
     db-data:
