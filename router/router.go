@@ -46,6 +46,7 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 }
 
 func setupEventGroup(eventGroup *gin.RouterGroup) {
+	eventGroup.GET("/:event_id", event.GetEventHandler)
 	eventGroup.POST("/", isAdminUser, event.CreateEventHandler)
 }
 

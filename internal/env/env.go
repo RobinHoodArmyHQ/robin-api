@@ -13,7 +13,7 @@ const (
 )
 
 type Env struct {
-	SqlDB *sql.DB
+	SqlDBConn *sql.DB
 
 	EventRepository event.EventRepository
 }
@@ -44,9 +44,9 @@ func NewEnv(options ...func(env *Env)) *Env {
 	return env
 }
 
-func WithSqlDB(db *sql.DB) func(*Env) {
+func WithSqlDBConn(db *sql.DB) func(*Env) {
 	return func(env *Env) {
-		env.SqlDB = db
+		env.SqlDBConn = db
 	}
 }
 

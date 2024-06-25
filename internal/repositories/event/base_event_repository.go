@@ -3,7 +3,8 @@ package event
 import "github.com/RobinHoodArmyHQ/robin-api/models"
 
 type EventRepository interface {
-	CreateEvent(event *CreateEventRequest) (*CreateEventResponse, error)
+	CreateEvent(req *CreateEventRequest) (*CreateEventResponse, error)
+	GetEvent(req *GetEventRequest) (*GetEventResponse, error)
 }
 
 type CreateEventRequest struct {
@@ -12,4 +13,12 @@ type CreateEventRequest struct {
 
 type CreateEventResponse struct {
 	EventID int64
+}
+
+type GetEventRequest struct {
+	EventID int64
+}
+
+type GetEventResponse struct {
+	Event *models.Event
 }
