@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -34,19 +33,19 @@ var (
 )
 
 type Event struct {
-	EventId         int64         `json:"event_id,omitempty"`
-	Name            string        `json:"name,omitempty"`
-	Description     string        `json:"description,omitempty"`
-	StartTime       time.Time     `json:"start_time,omitempty"`
-	EventType       EventType     `json:"event_type,omitempty"`
-	EventLocationID int64         `json:"-"`
-	EventLocation   *Location     `json:"event_location,omitempty"`
-	MinRobins       uint8         `json:"min_robins,omitempty"`
-	MaxRobins       uint8         `json:"max_robins,omitempty"`
-	CreatedBy       int64         `json:"-"`
-	UpdatedBy       sql.NullInt64 `json:"-"`
-	CreatedAt       time.Time     `json:"created_at,omitempty"`
-	UpdatedAt       sql.NullTime  `json:"updated_at,omitempty"`
+	EventId         int64     `json:"event_id,omitempty" gorm:"primaryKey"`
+	Name            string    `json:"name,omitempty"`
+	Description     string    `json:"description,omitempty"`
+	StartTime       time.Time `json:"start_time,omitempty"`
+	EventType       EventType `json:"event_type,omitempty"`
+	EventLocationID int64     `json:"-"`
+	EventLocation   *Location `json:"event_location,omitempty" gorm:"foreignKey:EventLocationID;references:LocationId"`
+	MinRobins       uint8     `json:"min_robins,omitempty"`
+	MaxRobins       uint8     `json:"max_robins,omitempty"`
+	CreatedBy       int64     `json:"-"`
+	UpdatedBy       int64     `json:"-"`
+	CreatedAt       time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`
+	UpdatedAt       time.Time `json:"updated_at,omitempty" gorm:"autoUpdateTime"`
 }
 
 type CreateEventResponse struct {

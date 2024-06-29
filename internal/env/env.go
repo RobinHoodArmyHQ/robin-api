@@ -2,9 +2,9 @@ package env
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/event"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +13,7 @@ const (
 )
 
 type Env struct {
-	SqlDBConn *sql.DB
+	SqlDBConn *database.SqlDB
 
 	EventRepository event.EventRepository
 }
@@ -44,7 +44,7 @@ func NewEnv(options ...func(env *Env)) *Env {
 	return env
 }
 
-func WithSqlDBConn(db *sql.DB) func(*Env) {
+func WithSqlDBConn(db *database.SqlDB) func(*Env) {
 	return func(env *Env) {
 		env.SqlDBConn = db
 	}

@@ -40,7 +40,7 @@ func main() {
 
 	ev := env.NewEnv(
 		env.WithSqlDBConn(dbConn),
-		env.WithEventRepository(sqlRepos.NewEventRepository(dbConn)),
+		env.WithEventRepository(sqlRepos.NewEventRepository(logger, dbConn)),
 	)
 
 	r := router.Initialize(ctx, ev)

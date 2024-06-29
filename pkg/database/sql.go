@@ -1,49 +1,51 @@
 package database
 
 import (
-	"database/sql"
-	"errors"
-	"fmt"
-	"time"
-
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func getDSN() string {
-	// Format: username:password@protocol(address)/dbname?param=value
-	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?allowNativePasswords=true&charset=utf8&parseTime=true&timeout=5s",
-		viper.GetString("mysql.username"), viper.GetString("mysql.password"), viper.GetString("mysql.host"),
-		viper.GetString("mysql.port"), viper.GetString("mysql.database"),
-	)
+type SqlDB struct {
+	logger *zap.Logger
+	master *connection
+}
+
+func (db *SqlDB) Master() *connection {
+	return db.master
+}
+
+func (db *SqlDB) Close() {
+	gdb, err := db.master.DB.DB()
+	if err != nil {
+		db.logger.Error("could not close database connection", zap.Error(err))
+		return
+	}
+	gdb.Close()
 }
 
 // Connect will open a connection to the database
-func Connect(logger *zap.Logger) (*sql.DB, error) {
-	db, err := sql.Open("mysql", getDSN())
+func Connect(logger *zap.Logger) (*SqlDB, error) {
+	db := &SqlDB{
+		logger: logger,
+	}
+
+	// Initialize master DB
+	masterDBConn, err := NewConnection(
+		User(viper.GetString("mysql.username")),
+		Password(viper.GetString("mysql.password")),
+		Host(viper.GetString("mysql.host")),
+		Port(viper.GetInt("mysql.port")),
+		Schema(viper.GetString("mysql.database")),
+		Debug(viper.GetBool("mysql.debug")),
+		MaxOpenConnections(viper.GetInt("mysql.max_open_connections")),
+		MaxIdleConnections(viper.GetInt("mysql.max_idle_connections")),
+		ConnectionMaxLifetime(viper.GetDuration("mysql.conn_max_lifetime")),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	var retries = 30
-
-	// Ping the database to ensure a successful connection
-	for retries > 0 {
-		err = db.Ping()
-
-		retries--
-
-		if err != nil {
-			time.Sleep(time.Second * 1)
-		} else {
-			break
-		}
-
-		if retries == 0 {
-			return nil, errors.New("could not connect to database after max retries")
-		}
-	}
+	db.master = masterDBConn
 
 	return db, nil
 }
