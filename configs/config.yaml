@@ -1,2 +1,14 @@
 listen:
   port: 3000
+
+mysql:
+  host: localhost
+  port: 3306
+  username: root
+  password: password
+  database: rha
+  debug: true
+  max_open_connections: 10
+  max_idle_connections: 10
+  connection_max_lifetime: 0
+

@@ -8,6 +8,6 @@ type MobileNumber struct {
 }
 
 type AuthResponse struct {
-	Status
+	Status    *Status
 	RequestID uuid.UUID `json:"request_id,omitempty"`
 }
