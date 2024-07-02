@@ -2,6 +2,8 @@ package router
 
 import (
 	"context"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/checkin"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/user"
 	"net/http"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/auth"
@@ -41,6 +43,23 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 	eventGroup := r.Group("/event")
 	eventGroup.Use(isUserLoggedIn)
 	setupEventGroup(eventGroup)
+
+	userGroup := r.Group("/user")
+	userGroup.Use(isUserLoggedIn)
+	{
+		userGroup.GET("/:user_id", user.GetUserHandler)
+		// TODO: this is for testing purposes only - create user at auth level
+		userGroup.POST("/", user.CreateUserHandler)
+	}
+
+	checkInGroup := r.Group("/checkin")
+	checkInGroup.Use(isUserLoggedIn)
+	{
+		checkInGroup.POST("/", checkin.CreateCheckInHandler)
+		checkInGroup.GET("/:checkin_id", checkin.GetCheckInHandler)
+		// Check-in list for a user
+		checkInGroup.GET("/list", checkin.GetUserCheckInsHandler)
+	}
 
 	return r
 }

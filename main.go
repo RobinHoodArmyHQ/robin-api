@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	"net/http"
 	"time"
 
@@ -41,6 +43,8 @@ func main() {
 	ev := env.NewEnv(
 		env.WithSqlDBConn(dbConn),
 		env.WithEventRepository(sqlRepos.NewEventRepository(logger, dbConn)),
+		env.WithUserRepository(user.New(logger, dbConn)),
+		env.WithCheckInRepository(checkin.New(logger, dbConn)),
 	)
 
 	r := router.Initialize(ctx, ev)

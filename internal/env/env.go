@@ -2,6 +2,8 @@ package env
 
 import (
 	"context"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/event"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
@@ -15,7 +17,9 @@ const (
 type Env struct {
 	SqlDBConn *database.SqlDB
 
-	EventRepository event.EventRepository
+	EventRepository   event.EventRepository
+	UserRepository    user.User
+	CheckInRepository checkin.CheckIn
 }
 
 func FromContext(ctx context.Context) *Env {
@@ -53,5 +57,17 @@ func WithSqlDBConn(db *database.SqlDB) func(*Env) {
 func WithEventRepository(eventRepo event.EventRepository) func(*Env) {
 	return func(env *Env) {
 		env.EventRepository = eventRepo
+	}
+}
+
+func WithUserRepository(userRepo user.User) func(*Env) {
+	return func(env *Env) {
+		env.UserRepository = userRepo
+	}
+}
+
+func WithCheckInRepository(checkInRepo checkin.CheckIn) func(*Env) {
+	return func(env *Env) {
+		env.CheckInRepository = checkInRepo
 	}
 }
