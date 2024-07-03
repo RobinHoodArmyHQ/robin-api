@@ -56,7 +56,7 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 	checkInGroup.Use(isUserLoggedIn)
 	{
 		checkInGroup.POST("/", checkin.CreateCheckInHandler)
-		checkInGroup.GET("/:checkin_id", checkin.GetCheckInHandler)
+		checkInGroup.GET("/:check_in_id", checkin.GetCheckInHandler)
 		// Check-in list for a user
 		checkInGroup.GET("/list", checkin.GetUserCheckInsHandler)
 	}
