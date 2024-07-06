@@ -33,7 +33,8 @@ var (
 )
 
 type Event struct {
-	EventId         int64     `json:"event_id,omitempty" gorm:"primaryKey"`
+	ID              int64     `json:"-" gorm:"primaryKey"`
+	EventId         string    `json:"event_id,omitempty"`
 	Name            string    `json:"name,omitempty"`
 	Description     string    `json:"description,omitempty"`
 	StartTime       time.Time `json:"start_time,omitempty"`
@@ -50,7 +51,7 @@ type Event struct {
 
 type CreateEventResponse struct {
 	Status  *Status `json:"status,omitempty"`
-	EventId int64   `json:"event_id,omitempty"`
+	EventId string  `json:"event_id,omitempty"`
 }
 
 type GetEventResponse struct {

@@ -2,7 +2,6 @@ package event
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/event"
@@ -40,15 +39,9 @@ func CreateEventHandler(c *gin.Context) {
 func GetEventHandler(c *gin.Context) {
 	ev := env.FromContext(c)
 
-	eventIDStr := c.Param("event_id")
-	if eventIDStr == "" || eventIDStr == "0" {
+	eventID := c.Param("event_id")
+	if eventID == "" || eventID == "0" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.StatusFailed("Missing event id"))
-		return
-	}
-
-	eventID, err := strconv.ParseInt(eventIDStr, 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.StatusFailed("Invalid event id"))
 		return
 	}
 

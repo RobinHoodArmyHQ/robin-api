@@ -1,23 +1,23 @@
 CREATE DATABASE IF NOT EXISTS rha;
 
 CREATE TABLE events (
-    event_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    event_id VARCHAR(12) DEFAULT NULL,
     name VARCHAR(255),
     description TEXT,
     start_time DATETIME,
-    event_type INT,
-    event_location_id BIGINT,
-    min_robins TINYINT,
-    max_robins TINYINT,
-    created_by VARCHAR(255),
-    updated_by VARCHAR(255),
+    event_type TINYINT UNSIGNED,
+    event_location_id BIGINT UNSIGNED,
+    min_robins TINYINT UNSIGNED,
+    max_robins TINYINT UNSIGNED,
+    created_by BIGINT UNSIGNED,
     created_at DATETIME,
-    updated_at DATETIME
+    INDEX (event_id)
 );
 
 CREATE TABLE locations (
-    location_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    location_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    latitude DOUBLE,
-    longitude DOUBLE
+    latitude DECIMAL(9, 6),
+    longitude DECIMAL(9, 6)
 );

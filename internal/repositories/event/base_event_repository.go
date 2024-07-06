@@ -12,11 +12,11 @@ type CreateEventRequest struct {
 }
 
 type CreateEventResponse struct {
-	EventID int64
+	EventID string
 }
 
 type GetEventRequest struct {
-	EventID int64
+	EventID string
 }
 
 type GetEventResponse struct {
