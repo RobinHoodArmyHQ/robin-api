@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	"net/http"
 	"time"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	sqlRepos "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/checkin"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/user"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/RobinHoodArmyHQ/robin-api/router"
 	"github.com/spf13/viper"

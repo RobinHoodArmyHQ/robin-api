@@ -5,8 +5,8 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/contract"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
-	"strconv"
 )
 
 func CreateCheckInHandler(c *gin.Context) {
@@ -22,7 +22,6 @@ func CreateCheckInHandler(c *gin.Context) {
 		return
 	}
 
-	checkIn.CheckIn.CheckInID = 0
 	checkInRepo := env.FromContext(c).CheckInRepository
 	checkInResp, err := checkInRepo.CreateCheckIn(checkIn)
 	if err != nil {
@@ -40,9 +39,9 @@ func GetCheckInHandler(c *gin.Context) {
 		return
 	}
 
-	checkInID, err := strconv.ParseUint(checkInIDStr, 10, 64)
+	checkInID, err := uuid.Parse(checkInIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, &contract.Response{Message: "invalid check_in id"})
+		c.JSON(http.StatusBadRequest, &contract.Response{Message: err.Error()})
 		return
 	}
 
@@ -68,9 +67,9 @@ func GetUserCheckInsHandler(c *gin.Context) {
 		return
 	}
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, &contract.Response{Message: "invalid user_id"})
+		c.JSON(http.StatusBadRequest, &contract.Response{Message: err.Error()})
 		return
 	}
 

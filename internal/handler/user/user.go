@@ -5,8 +5,8 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/contract"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
-	"strconv"
 )
 
 func GetUserHandler(c *gin.Context) {
@@ -16,9 +16,9 @@ func GetUserHandler(c *gin.Context) {
 		return
 	}
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, &contract.Response{Message: "invalid user id"})
+		c.JSON(http.StatusBadRequest, &contract.Response{Message: err.Error()})
 		return
 	}
 
@@ -50,7 +50,6 @@ func CreateUserHandler(c *gin.Context) {
 		return
 	}
 
-	userReq.User.UserId = 0
 	userRepo := env.FromContext(c).UserRepository
 	userResponse, err := userRepo.CreateUser(userReq)
 	if err != nil {
