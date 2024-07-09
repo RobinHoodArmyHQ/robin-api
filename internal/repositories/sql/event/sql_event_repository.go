@@ -1,4 +1,4 @@
-package sql
+package event
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	eventModel "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/event"
 	"github.com/RobinHoodArmyHQ/robin-api/models"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -28,6 +29,8 @@ func NewEventRepository(logger *zap.Logger, db *database.SqlDB) *EventRepository
 
 // CreateEvent creates a new event within a transaction
 func (r *EventRepository) CreateEvent(req *eventModel.CreateEventRequest) (*eventModel.CreateEventResponse, error) {
+	req.Event.EventId = uuid.NewString()
+
 	err := r.db.Master().Create(req.Event).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to create event: %v", err)
