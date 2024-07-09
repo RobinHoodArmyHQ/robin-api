@@ -44,9 +44,9 @@ type Event struct {
 	MinRobins       uint8     `json:"min_robins,omitempty"`
 	MaxRobins       uint8     `json:"max_robins,omitempty"`
 	CreatedBy       int64     `json:"-"`
-	UpdatedBy       int64     `json:"-"`
+	UpdatedBy       int64     `json:"-" gorm:"-"`
 	CreatedAt       time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`
-	UpdatedAt       time.Time `json:"updated_at,omitempty" gorm:"autoUpdateTime"`
+	UpdatedAt       time.Time `json:"-" gorm:"-"`
 }
 
 type CreateEventResponse struct {
