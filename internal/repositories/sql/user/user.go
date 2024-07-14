@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	"github.com/RobinHoodArmyHQ/robin-api/models"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
@@ -49,5 +50,45 @@ func (i *impl) GetUser(req *user.GetUserRequest) (*user.GetUserResponse, error) 
 
 	return &user.GetUserResponse{
 		User: model,
+	}, nil
+}
+
+func (i *impl) CheckIfUserExists(req *user.CheckIfUserExistsRequest) (*user.CheckIfUserExistsResponse, error) {
+	userData := &models.User{}
+	exec := i.db.Master().First(userData, "email_id = ?", req.EmailId)
+
+	if exec.Error != nil {
+		i.logger.Error("ERROR_CHECK_IF_USER_EXISTS", zap.Error(exec.Error))
+		return nil, exec.Error
+	}
+
+	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
+		i.logger.Info("user not found", zap.String("email_id", req.EmailId))
+		return &user.CheckIfUserExistsResponse{
+			IsExisting: false,
+		}, nil
+	}
+
+	return &user.CheckIfUserExistsResponse{
+		IsExisting: true,
+	}, nil
+}
+
+func (i *impl) GetUserByEmailId(req *user.GetUserByEmailIdRequest) (*user.GetUserByEmailIdResponse, error) {
+	userData := &models.User{}
+	exec := i.db.Master().First(userData, "email_id=?", req.EmailId)
+
+	if exec.Error != nil {
+		i.logger.Error("ERROR_GET_USER_BY_EMAIL_ID", zap.Error(exec.Error))
+		return nil, exec.Error
+	}
+
+	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
+		i.logger.Info("user not found", zap.String("email_id", req.EmailId))
+		return nil, nil
+	}
+
+	return &user.GetUserByEmailIdResponse{
+		User: userData,
 	}, nil
 }

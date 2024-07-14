@@ -15,6 +15,7 @@ type User struct {
 	InstagramId  string        `json:"instagram_id,omitempty"`
 	Level        Level         `json:"level,omitempty" gorm:"serializer:json"`
 	DefaultCity  City          `json:"default_city,omitempty" gorm:"serializer:json"`
+	PasswordHash string        `json:"password_hash,omitempty"`
 }
 
 type Level struct {
