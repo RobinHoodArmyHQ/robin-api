@@ -1,31 +1,60 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"time"
+)
 
 type EventType uint8
 
 const (
-	MEAL_DRIVE EventType = 0
-	ACADEMY
-	OTHER
+	EventInvalid EventType = iota
+	EventMealDrive
+	EventAcademy
 )
 
 type VehicleType uint8
 
 const (
-	TWO_WHEELER VehicleType = 0
-	FOUR_WHEELER
+	VehicleInvalid VehicleType = iota
+	VehicleTwoWheeler
+	VehicleFourWheeler
+)
+
+var (
+	ValidEventTypes = map[EventType]bool{
+		EventMealDrive: true,
+		EventAcademy:   true,
+	}
+
+	ValidVehicleTypes = map[VehicleType]bool{
+		VehicleTwoWheeler:  true,
+		VehicleFourWheeler: true,
+	}
 )
 
 type Event struct {
-	EventId              uuid.UUID `json:"event_id,omitempty"`
-	Name                 string    `json:"name,omitempty"`
-	Description          string    `json:"description,omitempty"`
-	Timestamp            int64     `json:"timestamp,omitempty"`
-	EventType            EventType `json:"event_type,omitempty"`
-	PickupLocation       Location  `json:"pickup_location,omitempty"`
-	DistributionLocation Location  `json:"distribution_location,omitempty"`
-	AcademyLocation      Location  `json:"academy_location,omitempty"`
-	MinRobins            uint8     `json:"min_robins,omitempty"`
-	MaxRobins            uint8     `json:"max_robins,omitempty"`
+	ID              int64     `json:"-" gorm:"primaryKey"`
+	EventId         string    `json:"event_id,omitempty"`
+	Name            string    `json:"name,omitempty"`
+	Description     string    `json:"description,omitempty"`
+	StartTime       time.Time `json:"start_time,omitempty"`
+	EventType       EventType `json:"event_type,omitempty"`
+	EventLocationID int64     `json:"-"`
+	EventLocation   *Location `json:"event_location,omitempty" gorm:"foreignKey:EventLocationID;references:LocationId"`
+	MinRobins       uint8     `json:"min_robins,omitempty"`
+	MaxRobins       uint8     `json:"max_robins,omitempty"`
+	CreatedBy       int64     `json:"-"`
+	UpdatedBy       int64     `json:"-" gorm:"-"`
+	CreatedAt       time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`
+	UpdatedAt       time.Time `json:"-" gorm:"-"`
+}
+
+type CreateEventResponse struct {
+	Status  *Status `json:"status,omitempty"`
+	EventId string  `json:"event_id,omitempty"`
+}
+
+type GetEventResponse struct {
+	Status *Status `json:"status,omitempty"`
+	Event  *Event  `json:"event,omitempty"`
 }
