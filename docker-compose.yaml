@@ -36,7 +36,9 @@ services:
     - db-data:/var/lib/mysql
     ports:
       - '3306:3306'
-      
+    networks:
+      - rha_local
+
   robin-db-ui:
     container_name: robin-db-ui
     image: adminer:4.8.1
@@ -44,7 +46,9 @@ services:
       - "8089:8080"
     depends_on:
       - robin-db
-
+    networks:
+      - rha_local
+      
 volumes:
     db-data:
       driver: local

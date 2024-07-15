@@ -2,7 +2,7 @@ listen:
   port: 3000
 
 mysql:
-  host: localhost
+  host: robin-db
   port: 3306
   username: root
   password: password
