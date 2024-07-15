@@ -48,9 +48,9 @@ func Connect(logger *zap.Logger) (*SqlDB, error) {
 
 	db.master = masterDBConn
 
-	if err = initTables(db); err != nil {
-		return nil, err
-	}
+	//if err = initTables(db); err != nil {
+	//	return nil, err
+	//}
 
 	return db, nil
 }
