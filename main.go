@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
-	sqlRepos "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/checkin"
+	sqlEventRepo "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/event"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/user"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/RobinHoodArmyHQ/robin-api/router"
@@ -42,7 +42,7 @@ func main() {
 
 	ev := env.NewEnv(
 		env.WithSqlDBConn(dbConn),
-		env.WithEventRepository(sqlRepos.NewEventRepository(logger, dbConn)),
+		env.WithEventRepository(sqlEventRepo.NewEventRepository(logger, dbConn)),
 		env.WithUserRepository(user.New(logger, dbConn)),
 		env.WithCheckInRepository(checkin.New(logger, dbConn)),
 	)
