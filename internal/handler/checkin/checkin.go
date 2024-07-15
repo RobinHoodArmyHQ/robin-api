@@ -5,7 +5,6 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/contract"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -33,15 +32,9 @@ func CreateCheckInHandler(c *gin.Context) {
 }
 
 func GetCheckInHandler(c *gin.Context) {
-	checkInIDStr := c.Param("check_in_id")
-	if checkInIDStr == "" {
+	checkInID := c.Param("check_in_id")
+	if checkInID == "" {
 		c.JSON(http.StatusBadRequest, &contract.Response{Message: "check_in_id is required"})
-		return
-	}
-
-	checkInID, err := uuid.Parse(checkInIDStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, &contract.Response{Message: err.Error()})
 		return
 	}
 
@@ -61,15 +54,9 @@ func GetCheckInHandler(c *gin.Context) {
 }
 
 func GetUserCheckInsHandler(c *gin.Context) {
-	userIDStr := c.Query("user_id")
-	if userIDStr == "" {
+	userID := c.Query("user_id")
+	if userID == "" {
 		c.JSON(http.StatusBadRequest, &contract.Response{Message: "user_id is required"})
-		return
-	}
-
-	userID, err := uuid.Parse(userIDStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, &contract.Response{Message: err.Error()})
 		return
 	}
 

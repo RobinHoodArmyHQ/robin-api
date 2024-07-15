@@ -5,20 +5,13 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/contract"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 )
 
 func GetUserHandler(c *gin.Context) {
-	userIDStr := c.Param("user_id")
-	if userIDStr == "" {
+	userID := c.Param("user_id")
+	if userID == "" {
 		c.JSON(http.StatusBadRequest, &contract.Response{Message: "user_id is required"})
-		return
-	}
-
-	userID, err := uuid.Parse(userIDStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, &contract.Response{Message: err.Error()})
 		return
 	}
 

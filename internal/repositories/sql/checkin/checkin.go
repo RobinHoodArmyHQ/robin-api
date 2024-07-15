@@ -5,7 +5,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
 	"github.com/RobinHoodArmyHQ/robin-api/models"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
-	"github.com/google/uuid"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -26,7 +26,7 @@ func New(logger *zap.Logger, db *database.SqlDB) checkin.CheckIn {
 func (i *impl) CreateCheckIn(req *checkin.CreateCheckInRequest) (*checkin.CreateCheckInResponse, error) {
 	var err error
 	req.CheckIn.ID = 0
-	req.CheckIn.CheckInID, err = uuid.NewRandom()
+	req.CheckIn.CheckInID, err = nanoid.GetID()
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate checkin id: %v", err)
 	}
@@ -43,7 +43,7 @@ func (i *impl) GetCheckIn(req *checkin.GetCheckInRequest) (*checkin.GetCheckInRe
 	model := &models.CheckIn{}
 	exec := i.db.Master().First(model, "check_in_id = ?", req.CheckInID)
 	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
-		i.logger.Error("user not found", zap.String("check_in_id", req.CheckInID.String()))
+		i.logger.Error("checkin not found", zap.String("check_in_id", req.CheckInID))
 		return nil, nil
 	}
 

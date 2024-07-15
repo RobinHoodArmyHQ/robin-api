@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/RobinHoodArmyHQ/robin-api/models"
-	"github.com/google/uuid"
 )
 
 type User interface {
@@ -15,11 +14,11 @@ type CreateUserRequest struct {
 }
 
 type CreateUserResponse struct {
-	UserID uuid.UUID `json:"user_id"`
+	UserID string `json:"user_id"`
 }
 
 type GetUserRequest struct {
-	UserID uuid.UUID `json:"user_id"`
+	UserID string `json:"user_id"`
 }
 
 type GetUserResponse struct {

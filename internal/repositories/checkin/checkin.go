@@ -2,7 +2,6 @@ package checkin
 
 import (
 	"github.com/RobinHoodArmyHQ/robin-api/models"
-	"github.com/google/uuid"
 )
 
 type CheckIn interface {
@@ -16,11 +15,11 @@ type CreateCheckInRequest struct {
 }
 
 type CreateCheckInResponse struct {
-	CheckInID uuid.UUID `json:"check_in_id"`
+	CheckInID string `json:"check_in_id"`
 }
 
 type GetCheckInRequest struct {
-	CheckInID uuid.UUID `json:"check_in_id"`
+	CheckInID string `json:"check_in_id"`
 }
 
 type GetCheckInResponse struct {
@@ -28,7 +27,7 @@ type GetCheckInResponse struct {
 }
 
 type GetUserCheckInsRequest struct {
-	UserID uuid.UUID `json:"user_id"`
+	UserID string `json:"user_id"`
 }
 
 type GetUserCheckInsResponse struct {
