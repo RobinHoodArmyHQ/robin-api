@@ -42,7 +42,7 @@ func VerifyJwt(signedToken string) error {
 	})
 
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if !token.Valid {
