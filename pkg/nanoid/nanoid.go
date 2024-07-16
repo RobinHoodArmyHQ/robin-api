@@ -12,11 +12,15 @@ const (
 
 type NanoID string
 
-func GetID() (string, error) {
+func GetID() (NanoID, error) {
 	id, err := goNanoId.Generate(defaultCharacters, defaultSize)
 	if err != nil {
 		return "", err
 	}
 
-	return id, nil
+	return NanoID(id), nil
+}
+
+func (nanoID NanoID) String() string {
+	return string(nanoID)
 }
