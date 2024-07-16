@@ -33,7 +33,7 @@ func (r *EventRepository) CreateEvent(req *eventModel.CreateEventRequest) (*even
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate nanoid: %v", err)
 	}
-	req.Event.EventId = id
+	req.Event.EventId = id.String()
 
 	err = r.db.Master().Create(req.Event).Error
 	if err != nil {

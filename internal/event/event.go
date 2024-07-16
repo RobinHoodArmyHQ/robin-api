@@ -31,7 +31,7 @@ func CreateEventHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &models.CreateEventResponse{
-		Status:  models.StatusSuccess("Event created successfully"),
+		Status:  models.StatusSuccess(),
 		EventId: resp.EventID,
 	})
 }
@@ -52,7 +52,7 @@ func GetEventHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &models.GetEventResponse{
-		Status: models.StatusSuccess("Event fetched successfully"),
+		Status: models.StatusSuccess(),
 		Event:  resp.Event,
 	})
 }

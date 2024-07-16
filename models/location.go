@@ -1,6 +1,6 @@
 package models
 
-import "github.com/google/uuid"
+import "github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 
 type Location struct {
 	LocationId int64   `json:"location_id,omitempty" gorm:"primaryKey"`
@@ -10,12 +10,23 @@ type Location struct {
 }
 
 type City struct {
-	CityId  uuid.UUID `json:"city_id,omitempty"`
-	Name    string    `json:"name,omitempty"`
-	Country Country   `json:"country,omitempty"`
+	ID        int32         `json:"-" gorm:"primaryKey;auto_increment"`
+	CityId    nanoid.NanoID `json:"city_id,omitempty"`
+	Name      string        `json:"name,omitempty"`
+	CountryId int8          `json:"-"`
+	Country   Country       `json:"country,omitempty" gorm:"foreignKey:ID;references:CountryId"`
 }
 
 type Country struct {
-	CountryId uuid.UUID `json:"country_id,omitempty"`
-	Name      string    `json:"name,omitempty"`
+	ID        int8          `json:"-" gorm:"primaryKey;auto_increment"`
+	CountryId nanoid.NanoID `json:"country_id,omitempty"`
+	Name      string        `json:"name,omitempty"`
+}
+
+type GetCitiesRequest struct {
+}
+
+type GetCitiesResponse struct {
+	Status *Status `json:"status,omitempty"`
+	Cities []*City `json:"cities,omitempty"`
 }

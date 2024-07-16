@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql"
 	sqlEventRepo "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/event"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/RobinHoodArmyHQ/robin-api/router"
@@ -41,6 +42,7 @@ func main() {
 	ev := env.NewEnv(
 		env.WithSqlDBConn(dbConn),
 		env.WithEventRepository(sqlEventRepo.NewEventRepository(logger, dbConn)),
+		env.WithLocationRepository(sql.NewLocationRepository(logger, dbConn)),
 	)
 
 	r := router.Initialize(ctx, ev)
