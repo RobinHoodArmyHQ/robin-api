@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/RobinHoodArmyHQ/robin-api/models"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 )
 
 type User interface {
@@ -14,11 +15,11 @@ type CreateUserRequest struct {
 }
 
 type CreateUserResponse struct {
-	UserID string `json:"user_id"`
+	UserID nanoid.NanoID `json:"user_id"`
 }
 
 type GetUserRequest struct {
-	UserID string `json:"user_id"`
+	UserID nanoid.NanoID `json:"user_id"`
 }
 
 type GetUserResponse struct {

@@ -4,6 +4,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/contract"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,7 +17,7 @@ func GetUserHandler(c *gin.Context) {
 	}
 
 	userRepo := env.FromContext(c).UserRepository
-	userResponse, err := userRepo.GetUser(&user.GetUserRequest{UserID: userID})
+	userResponse, err := userRepo.GetUser(&user.GetUserRequest{UserID: nanoid.NanoID(userID)})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &contract.Response{Message: err.Error()})
 		return

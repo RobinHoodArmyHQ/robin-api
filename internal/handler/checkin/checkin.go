@@ -4,6 +4,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/contract"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -39,7 +40,7 @@ func GetCheckInHandler(c *gin.Context) {
 	}
 
 	checkInRepo := env.FromContext(c).CheckInRepository
-	checkInResp, err := checkInRepo.GetCheckIn(&checkin.GetCheckInRequest{CheckInID: checkInID})
+	checkInResp, err := checkInRepo.GetCheckIn(&checkin.GetCheckInRequest{CheckInID: nanoid.NanoID(checkInID)})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &contract.Response{Message: err.Error()})
 		return
@@ -61,7 +62,7 @@ func GetUserCheckInsHandler(c *gin.Context) {
 	}
 
 	checkInRepo := env.FromContext(c).CheckInRepository
-	checkInResp, err := checkInRepo.GetUserCheckIns(&checkin.GetUserCheckInsRequest{UserID: userID})
+	checkInResp, err := checkInRepo.GetUserCheckIns(&checkin.GetUserCheckInsRequest{UserID: nanoid.NanoID(userID)})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &contract.Response{Message: err.Error()})
 		return

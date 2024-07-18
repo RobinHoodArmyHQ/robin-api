@@ -43,7 +43,7 @@ func (i *impl) GetUser(req *user.GetUserRequest) (*user.GetUserResponse, error) 
 	model := &models.User{}
 	exec := i.db.Master().First(model, "user_id = ?", req.UserID)
 	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
-		i.logger.Error("user not found", zap.String("user_id", req.UserID))
+		i.logger.Error("user not found", zap.String("user_id", req.UserID.String()))
 		return nil, nil
 	}
 

@@ -2,6 +2,7 @@ package checkin
 
 import (
 	"github.com/RobinHoodArmyHQ/robin-api/models"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 )
 
 type CheckIn interface {
@@ -15,11 +16,11 @@ type CreateCheckInRequest struct {
 }
 
 type CreateCheckInResponse struct {
-	CheckInID string `json:"check_in_id"`
+	CheckInID nanoid.NanoID `json:"check_in_id"`
 }
 
 type GetCheckInRequest struct {
-	CheckInID string `json:"check_in_id"`
+	CheckInID nanoid.NanoID `json:"check_in_id"`
 }
 
 type GetCheckInResponse struct {
@@ -27,7 +28,7 @@ type GetCheckInResponse struct {
 }
 
 type GetUserCheckInsRequest struct {
-	UserID string `json:"user_id"`
+	UserID nanoid.NanoID `json:"user_id"`
 }
 
 type GetUserCheckInsResponse struct {

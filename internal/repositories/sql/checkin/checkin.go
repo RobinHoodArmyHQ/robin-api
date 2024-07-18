@@ -43,7 +43,7 @@ func (i *impl) GetCheckIn(req *checkin.GetCheckInRequest) (*checkin.GetCheckInRe
 	model := &models.CheckIn{}
 	exec := i.db.Master().First(model, "check_in_id = ?", req.CheckInID)
 	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
-		i.logger.Error("checkin not found", zap.String("check_in_id", req.CheckInID))
+		i.logger.Error("checkin not found", zap.String("check_in_id", req.CheckInID.String()))
 		return nil, nil
 	}
 
