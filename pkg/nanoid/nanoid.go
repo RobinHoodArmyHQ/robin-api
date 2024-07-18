@@ -7,14 +7,20 @@ import (
 const (
 	defaultSize = 12
 
-	defaultCharacters = "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	defaultCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
 
-func GetID() (string, error) {
+type NanoID string
+
+func GetID() (NanoID, error) {
 	id, err := goNanoId.Generate(defaultCharacters, defaultSize)
 	if err != nil {
 		return "", err
 	}
 
-	return id, nil
+	return NanoID(id), nil
+}
+
+func (nanoID NanoID) String() string {
+	return string(nanoID)
 }

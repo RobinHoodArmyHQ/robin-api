@@ -9,6 +9,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/auth"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/event"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/location"
 	"github.com/gin-gonic/gin"
 	"github.com/nanmu42/gzip"
 )
@@ -34,6 +35,8 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 			"message": "pong",
 		})
 	})
+
+	r.GET("/cities", location.GetCitiesHandler)
 
 	authRoutes := r.Group("/auth")
 	{
