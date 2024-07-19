@@ -3,7 +3,7 @@ package models
 import "github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 
 type Location struct {
-	LocationId int64   `json:"location_id,omitempty" gorm:"primaryKey"`
+	LocationId uint64  `json:"location_id,omitempty" gorm:"primaryKey"`
 	Name       string  `json:"name,omitempty"`
 	Latitude   float64 `json:"latitude,omitempty"`
 	Longitude  float64 `json:"longitude,omitempty"`

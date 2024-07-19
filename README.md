@@ -12,3 +12,6 @@ Follow these steps to build and run the application on your local device:
 
 - clone the repo to your local machine
 - run `make dev`
+
+### Postman Collection
+- https://www.postman.com/robinhoodarmy/workspace/backend-api/overview

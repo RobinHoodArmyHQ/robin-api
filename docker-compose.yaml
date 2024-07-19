@@ -22,6 +22,18 @@ services:
     restart: unless-stopped
     networks:
       - rha_local
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: rha
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - rha_local
 
   robin-db:
     container_name: robin-db
@@ -56,3 +68,7 @@ volumes:
 networks:
   rha_local:
     name: "rha_local_net"
+
+volumes:
+    mysql_data:
+        name: "rha_mysql_data"

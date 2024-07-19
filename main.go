@@ -7,7 +7,9 @@ import (
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/checkin"
 	sqlEventRepo "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/event"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/user"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/RobinHoodArmyHQ/robin-api/router"
 	"github.com/spf13/viper"
@@ -42,6 +44,8 @@ func main() {
 	ev := env.NewEnv(
 		env.WithSqlDBConn(dbConn),
 		env.WithEventRepository(sqlEventRepo.NewEventRepository(logger, dbConn)),
+		env.WithUserRepository(user.New(logger, dbConn)),
+		env.WithCheckInRepository(checkin.New(logger, dbConn)),
 		env.WithLocationRepository(sql.NewLocationRepository(logger, dbConn)),
 	)
 

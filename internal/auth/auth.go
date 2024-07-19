@@ -31,9 +31,9 @@ func AuthHandler(c *gin.Context) {
 	}
 
 	// generate request id and send response
-	request_id := uuid.Must(uuid.NewRandom())
+	requestId := uuid.Must(uuid.NewRandom())
 	c.JSON(http.StatusOK, models.AuthResponse{
 		Status:    models.StatusSuccess(),
-		RequestID: request_id,
+		RequestID: requestId,
 	})
 }

@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/nanmu42/gzip v1.2.0
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.18.2
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.25.0

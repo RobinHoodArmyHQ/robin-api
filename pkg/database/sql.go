@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/RobinHoodArmyHQ/robin-api/models"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -47,5 +48,29 @@ func Connect(logger *zap.Logger) (*SqlDB, error) {
 
 	db.master = masterDBConn
 
+	//if err = initTables(db); err != nil {
+	//	return nil, err
+	//}
+
 	return db, nil
+}
+
+func initTables(db *SqlDB) error {
+	// Initialize tables
+	err := db.master.DB.AutoMigrate(&models.User{})
+	if err != nil {
+		return err
+	}
+
+	err = db.master.DB.AutoMigrate(&models.Event{})
+	if err != nil {
+		return err
+	}
+
+	err = db.master.DB.AutoMigrate(&models.CheckIn{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

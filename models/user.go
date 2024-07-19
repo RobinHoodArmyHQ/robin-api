@@ -1,20 +1,20 @@
 package models
 
-import "github.com/google/uuid"
+import "github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 
 type User struct {
-	UserId       uuid.UUID    `json:"user_id,omitempty"`
-	FirstName    string       `json:"first_name,omitempty"`
-	LastName     string       `json:"last_name,omitempty"`
-	AvatarURL    string       `json:"avatar_url,omitempty"`
-	MobileNumber MobileNumber `json:"mobile_number,omitempty"`
-	EmailId      string       `json:"email_id,omitempty"`
-	FacebookId   string       `json:"facebook_id,omitempty"`
-	TwitterId    string       `json:"twitter_id,omitempty"`
-	InstagramId  string       `json:"instagram_id,omitempty"`
-	Level        Level        `json:"level,omitempty"`
-	NumDrives    uint         `json:"num_drives,omitempty"`
-	DefaultCity  City         `json:"default_city,omitempty"`
+	ID           uint64        `json:"-" gorm:"primaryKey"`
+	UserID       nanoid.NanoID `json:"user_id,omitempty"`
+	FirstName    string        `json:"first_name,omitempty"`
+	LastName     string        `json:"last_name,omitempty"`
+	AvatarURL    string        `json:"avatar_url,omitempty"`
+	MobileNumber MobileNumber  `json:"mobile_number,omitempty" gorm:"serializer:json"`
+	EmailId      string        `json:"email_id,omitempty"`
+	FacebookId   string        `json:"facebook_id,omitempty"`
+	TwitterId    string        `json:"twitter_id,omitempty"`
+	InstagramId  string        `json:"instagram_id,omitempty"`
+	Level        Level         `json:"level,omitempty" gorm:"serializer:json"`
+	DefaultCity  City          `json:"default_city,omitempty" gorm:"serializer:json"`
 }
 
 type Level struct {

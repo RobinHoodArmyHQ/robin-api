@@ -1,6 +1,9 @@
 package event
 
-import "github.com/RobinHoodArmyHQ/robin-api/models"
+import (
+	"github.com/RobinHoodArmyHQ/robin-api/models"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
+)
 
 type EventRepository interface {
 	CreateEvent(req *CreateEventRequest) (*CreateEventResponse, error)
@@ -12,11 +15,11 @@ type CreateEventRequest struct {
 }
 
 type CreateEventResponse struct {
-	EventID string
+	EventID nanoid.NanoID
 }
 
 type GetEventRequest struct {
-	EventID string
+	EventID nanoid.NanoID
 }
 
 type GetEventResponse struct {

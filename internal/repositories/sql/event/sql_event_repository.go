@@ -33,7 +33,7 @@ func (r *EventRepository) CreateEvent(req *eventModel.CreateEventRequest) (*even
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate nanoid: %v", err)
 	}
-	req.Event.EventId = id.String()
+	req.Event.EventId = id
 
 	err = r.db.Master().Create(req.Event).Error
 	if err != nil {
@@ -48,7 +48,7 @@ func (r *EventRepository) GetEvent(req *eventModel.GetEventRequest) (*eventModel
 	event := &models.Event{}
 	exec := r.db.Master().Preload(PreloadEventLocation).First(event, "event_id = ?", req.EventID)
 	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
-		r.logger.Error("event not found", zap.String("event_id", req.EventID))
+		r.logger.Error("event not found", zap.String("event_id", req.EventID.String()))
 		return &eventModel.GetEventResponse{}, nil
 	}
 

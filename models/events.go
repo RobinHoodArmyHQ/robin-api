@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"time"
 )
 
@@ -33,25 +34,25 @@ var (
 )
 
 type Event struct {
-	ID              int64     `json:"-" gorm:"primaryKey"`
-	EventId         string    `json:"event_id,omitempty"`
-	Name            string    `json:"name,omitempty"`
-	Description     string    `json:"description,omitempty"`
-	StartTime       time.Time `json:"start_time,omitempty"`
-	EventType       EventType `json:"event_type,omitempty"`
-	EventLocationID int64     `json:"-"`
-	EventLocation   *Location `json:"event_location,omitempty" gorm:"foreignKey:EventLocationID;references:LocationId"`
-	MinRobins       uint8     `json:"min_robins,omitempty"`
-	MaxRobins       uint8     `json:"max_robins,omitempty"`
-	CreatedBy       int64     `json:"-"`
-	UpdatedBy       int64     `json:"-" gorm:"-"`
-	CreatedAt       time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`
-	UpdatedAt       time.Time `json:"-" gorm:"-"`
+	ID              int64         `json:"-" gorm:"primaryKey"`
+	EventId         nanoid.NanoID `json:"event_id,omitempty"`
+	Name            string        `json:"name,omitempty"`
+	Description     string        `json:"description,omitempty"`
+	StartTime       time.Time     `json:"start_time,omitempty"`
+	EventType       EventType     `json:"event_type,omitempty"`
+	EventLocationID int64         `json:"-"`
+	EventLocation   *Location     `json:"event_location,omitempty" gorm:"foreignKey:EventLocationID;references:LocationId"`
+	MinRobins       uint8         `json:"min_robins,omitempty"`
+	MaxRobins       uint8         `json:"max_robins,omitempty"`
+	CreatedBy       int64         `json:"-"`
+	UpdatedBy       int64         `json:"-" gorm:"-"`
+	CreatedAt       time.Time     `json:"created_at,omitempty" gorm:"autoCreateTime"`
+	UpdatedAt       time.Time     `json:"-" gorm:"-"`
 }
 
 type CreateEventResponse struct {
-	Status  *Status `json:"status,omitempty"`
-	EventId string  `json:"event_id,omitempty"`
+	Status  *Status       `json:"status,omitempty"`
+	EventId nanoid.NanoID `json:"event_id,omitempty"`
 }
 
 type GetEventResponse struct {
