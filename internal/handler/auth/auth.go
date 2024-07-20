@@ -67,7 +67,7 @@ func RegisterUser(c *gin.Context) {
 
 	if user.IsExisting {
 		c.JSON(http.StatusConflict, u.RegisterUserResponse{
-			Status:    *models.StatusSuccess(fmt.Sprintf("User already exist with the email: %s", request.EmailId)),
+			Status:    *models.StatusSuccess(),
 			IsNewUser: user.IsExisting,
 		})
 		return
@@ -104,7 +104,7 @@ func RegisterUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, u.RegisterUserResponse{
 		IsNewUser: !user.IsExisting,
-		Status:    *models.StatusSuccess(fmt.Sprintln("User created successfully")),
+		Status:    *models.StatusSuccess(),
 	})
 }
 
@@ -160,7 +160,7 @@ func LoginUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, u.LoginUserResponse{
-		Status: *models.StatusSuccess("User logged-in successfully"),
+		Status: *models.StatusSuccess(),
 		Token:  jwtToken,
 	})
 }
