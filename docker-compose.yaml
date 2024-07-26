@@ -11,27 +11,9 @@ services:
       - "8080:3000"
     depends_on:
       - robin-db
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: password
-      DB_NAME: rha 
     volumes:
       - ./configs:/root/configs
     restart: unless-stopped
-    networks:
-      - rha_local
-  mysql:
-    image: mysql:latest
-    container_name: mysql-container
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: rha
-    volumes:
-      - mysql_data:/var/lib/mysql
     networks:
       - rha_local
 
@@ -41,11 +23,9 @@ services:
     cap_add:
       - SYS_NICE
     restart: always
-    environment: 
-      - MYSQL_DATABASE=rha
-      - MYSQL_ROOT_PASSWORD=password
+    env_file: .env.development
     volumes:
-    - db-data:/var/lib/mysql
+    - mysql_data:/var/lib/mysql
     ports:
       - '3306:3306'
     networks:
@@ -60,10 +40,6 @@ services:
       - robin-db
     networks:
       - rha_local
-      
-volumes:
-    db-data:
-      driver: local
 
 networks:
   rha_local:
