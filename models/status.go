@@ -2,7 +2,7 @@ package models
 
 // Status denotes the response status
 type Status struct {
-	Success bool   `json:"success,omitempty"`
+	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
 }
 
