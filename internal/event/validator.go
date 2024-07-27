@@ -20,11 +20,11 @@ const (
 )
 
 func validateCreateEventRequest(req *models.Event) error {
-	if req.Name == "" {
-		return errors.New("name is required")
+	if req.Title == "" {
+		return errors.New("title is required")
 	}
-	if len(req.Name) > nameMaxLength {
-		return fmt.Errorf("name should be less than %d characters", nameMaxLength)
+	if len(req.Title) > nameMaxLength {
+		return fmt.Errorf("title should be less than %d characters", nameMaxLength)
 	}
 
 	if req.Description == "" {
@@ -44,26 +44,26 @@ func validateCreateEventRequest(req *models.Event) error {
 		return fmt.Errorf("start time should be at most %s from now", timestampMax)
 	}
 
-	if req.EventType == 0 || !models.ValidEventTypes[req.EventType] {
+	if !models.ValidEventTypes[req.EventType] {
 		return errors.New("invalid event type provided")
 	}
 
-	if req.MinRobins == 0 || req.MinRobins > maxRobins {
-		return fmt.Errorf("min robins should be less than or equal to %d", maxRobins)
-	}
-	if req.MaxRobins == 0 || req.MaxRobins > maxRobins {
-		return fmt.Errorf("max robins should be less than or equal to %d", maxRobins)
-	}
-	if req.MaxRobins < req.MinRobins {
-		return errors.New("max robins should be greater than or equal to min robins")
-	}
+	// if req.MinRobins == 0 || req.MinRobins > maxRobins {
+	// 	return fmt.Errorf("min robins should be less than or equal to %d", maxRobins)
+	// }
+	// if req.MaxRobins == 0 || req.MaxRobins > maxRobins {
+	// 	return fmt.Errorf("max robins should be less than or equal to %d", maxRobins)
+	// }
+	// if req.MaxRobins < req.MinRobins {
+	// 	return errors.New("max robins should be greater than or equal to min robins")
+	// }
 
 	if req.EventLocation == nil {
 		return errors.New("event location is required")
 	}
-	if req.EventLocation.Name == "" {
-		return errors.New("event location name is required")
-	}
+	// if req.EventLocation.Name == "" {
+	// 	return errors.New("event location name is required")
+	// }
 	if len(req.EventLocation.Name) > locationNameMaxLength {
 		return fmt.Errorf("event location name should be less than %d characters", locationNameMaxLength)
 	}
