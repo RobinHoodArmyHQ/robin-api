@@ -2,14 +2,14 @@ package router
 
 import (
 	"context"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/auth"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/checkin"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/event"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/location"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/user"
 	"net/http"
 
-	"github.com/RobinHoodArmyHQ/robin-api/internal/auth"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/event"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/location"
 	"github.com/gin-gonic/gin"
 	"github.com/nanmu42/gzip"
 )
@@ -45,7 +45,11 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 
 	eventGroup := r.Group("/event")
 	eventGroup.Use(isUserLoggedIn)
-	setupEventGroup(eventGroup)
+	{
+		eventGroup.GET("/:event_id", event.GetEventHandler)
+		eventGroup.GET("/", event.GetEventsHandler)
+		eventGroup.POST("/", isAdminUser, event.CreateEventHandler)
+	}
 
 	userGroup := r.Group("/user")
 	userGroup.Use(isUserLoggedIn)
@@ -65,11 +69,6 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 	}
 
 	return r
-}
-
-func setupEventGroup(eventGroup *gin.RouterGroup) {
-	eventGroup.GET("/:event_id", event.GetEventHandler)
-	eventGroup.POST("/", isAdminUser, event.CreateEventHandler)
 }
 
 func HealthcheckHandler(c *gin.Context) {

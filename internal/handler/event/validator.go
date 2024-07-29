@@ -23,6 +23,7 @@ func validateCreateEventRequest(req *models.Event) error {
 	if req.Title == "" {
 		return errors.New("title is required")
 	}
+
 	if len(req.Title) > nameMaxLength {
 		return fmt.Errorf("title should be less than %d characters", nameMaxLength)
 	}
@@ -30,6 +31,7 @@ func validateCreateEventRequest(req *models.Event) error {
 	if req.Description == "" {
 		return errors.New("description is required")
 	}
+
 	if len(req.Description) > descriptionMaxLength {
 		return fmt.Errorf("description should be less than %d characters", descriptionMaxLength)
 	}
@@ -37,9 +39,11 @@ func validateCreateEventRequest(req *models.Event) error {
 	if req.StartTime.IsZero() {
 		return errors.New("start time is required")
 	}
+
 	if req.StartTime.Before(time.Now().Add(timestampMin)) {
 		return fmt.Errorf("start time should be at least %s from now", timestampMin)
 	}
+
 	if req.StartTime.After(time.Now().Add(timestampMax)) {
 		return fmt.Errorf("start time should be at most %s from now", timestampMax)
 	}
@@ -64,14 +68,21 @@ func validateCreateEventRequest(req *models.Event) error {
 	// if req.EventLocation.Name == "" {
 	// 	return errors.New("event location name is required")
 	// }
+
 	if len(req.EventLocation.Name) > locationNameMaxLength {
 		return fmt.Errorf("event location name should be less than %d characters", locationNameMaxLength)
 	}
+
 	if req.EventLocation.Latitude == 0 {
 		return errors.New("event location latitude is required")
 	}
+
 	if req.EventLocation.Longitude == 0 {
 		return errors.New("event location longitude is required")
+	}
+
+	if req.EventLocation.City.CityId == "" {
+		return errors.New("event location city_id is required")
 	}
 
 	return nil
