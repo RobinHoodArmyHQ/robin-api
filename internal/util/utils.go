@@ -1,15 +1,21 @@
 package util
 
 import (
+	"crypto/rand"
 	"fmt"
-	"strings"
+	"math/big"
 	"time"
 
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type JWTData struct {
+	*jwt.RegisteredClaims
+	UserInfo map[string]interface{}
+}
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
@@ -21,11 +27,24 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func GenerateJwt(emailId string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email_id": emailId,
-		"exp":      time.Now().Add(24 * time.Hour),
-	})
+func GenerateJwt(userID nanoid.NanoID) (string, error) {
+	// set expires at after 3 months
+	expiresAt := time.Now().AddDate(0, 3, 0)
+
+	// set user_info claims
+	userInfo := map[string]interface{}{
+		"user_id":   userID.String(),
+		"user_role": "regular",
+	}
+
+	claims := &JWTData{
+		&jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
+		},
+		userInfo,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString([]byte(viper.GetString("auth.jwt_secret")))
 	if err != nil {
@@ -35,50 +54,49 @@ func GenerateJwt(emailId string) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyJwt(signedToken string) error {
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(signedToken, claims, func(token *jwt.Token) (interface{}, error) {
+func VerifyJwt(signedToken string) (*JWTData, error) {
+	token, err := jwt.ParseWithClaims(signedToken, &JWTData{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(viper.GetString("auth.jwt_secret")), nil
 	})
 
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*JWTData)
+	if !ok {
+		return nil, fmt.Errorf("invalid token")
 	}
 
 	if !token.Valid {
-		return fmt.Errorf("invalid token")
+		return nil, fmt.Errorf("invalid token")
 	}
 
 	expiresAt, err := claims.GetExpirationTime()
 	if err != nil {
-		return fmt.Errorf("error parsing claims")
+		return nil, fmt.Errorf("error parsing claims")
 	}
 
-	if expiresAt.Unix() < time.Now().Local().Unix() {
-		return fmt.Errorf("token expired")
+	if time.Now().Unix() > expiresAt.Unix() {
+		return nil, fmt.Errorf("token expired")
 	}
 
-	return nil
+	return claims, nil
 }
 
-func GetFirstNameAndLastName(fullName string) (string, string) {
-	firstName, lastName := "", ""
+func GenerateOtp(length int) (string, error) {
+	seed := "012345679"
+	byteSlice := make([]byte, length)
 
-	if len(fullName) == 0 {
-		return firstName, lastName
+	for i := 0; i < length; i++ {
+		max := big.NewInt(int64(len(seed)))
+		num, err := rand.Int(rand.Reader, max)
+		if err != nil {
+			return "", err
+		}
+
+		byteSlice[i] = seed[num.Int64()]
 	}
 
-	nameArr := strings.Split(fullName, " ")
-	firstName = nameArr[0]
-
-	if len(nameArr) > 1 {
-		lastName = strings.Join(nameArr[1:], " ")
-	}
-
-	return firstName, lastName
-}
-
-func SendEmailVerificationCode(userData *user.CreateUserResponse) {
-	// TODO: send verification link via AWS-SES.
-
+	return string(byteSlice), nil
 }

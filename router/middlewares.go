@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/util"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +19,7 @@ func isUserLoggedIn(c *gin.Context) {
 		return
 	}
 
-	err := util.VerifyJwt(token)
+	claims, err := util.VerifyJwt(token)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -28,6 +29,8 @@ func isUserLoggedIn(c *gin.Context) {
 		return
 	}
 
+	c.Set("user_id", nanoid.NanoID(claims.UserInfo["user_id"].(string)))
+	c.Set("user_role", claims.UserInfo["user_role"].(string))
 	c.Next()
 }
 

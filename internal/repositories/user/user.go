@@ -7,9 +7,11 @@ import (
 
 type User interface {
 	CreateUser(req *CreateUserRequest) (*CreateUserResponse, error)
+	CreateUnverifiedUser(req *CreateUnverifiedUserRequest) (*CreateUnverifiedUserResponse, error)
 	GetUser(req *GetUserRequest) (*GetUserResponse, error)
-	GetUserByEmailId(req *GetUserByEmailIdRequest) (*GetUserByEmailIdResponse, error)
-	CheckIfUserExists(req *CheckIfUserExistsRequest) (*CheckIfUserExistsResponse, error)
+	GetUserByEmail(req *GetUserByEmailRequest) (*GetUserByEmailResponse, error)
+	GetUserByUserID(req *GetUserByUserIdRequest) (*GetUserByUserIdResponse, error)
+	UpdateUser(req *UpdateUserRequest) (*UpdateUserResponse, error)
 }
 
 type CreateUserRequest struct {
@@ -28,39 +30,35 @@ type GetUserResponse struct {
 	User *models.User `json:"user"`
 }
 
-type RegisterUserRequest struct {
-	FullName string `json:"full_name" binding:"required"`
-	EmailId  string `json:"email_id" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-}
-
-type RegisterUserResponse struct {
-	Status    models.Status
-	IsNewUser bool `json:"is_new_user,omitempty"`
-}
-
-type LoginUserRequest struct {
-	EmailId  string `json:"email_id" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-}
-
-type LoginUserResponse struct {
-	Status models.Status
-	Token  string `json:"token,omitempty"`
-}
-
-type GetUserByEmailIdRequest struct {
+type GetUserByEmailRequest struct {
 	EmailId string `json:"email_id"`
 }
 
-type GetUserByEmailIdResponse struct {
+type GetUserByEmailResponse struct {
 	User *models.User `json:"user"`
 }
 
-type CheckIfUserExistsRequest struct {
-	EmailId string `json:"email_id"`
+type GetUserByUserIdRequest struct {
+	UserID nanoid.NanoID `json:"user_id"`
 }
 
-type CheckIfUserExistsResponse struct {
-	IsExisting bool `json:"is_existing"`
+type GetUserByUserIdResponse struct {
+	User *models.UserVerfication `json:"user"`
+}
+
+type CreateUnverifiedUserRequest struct {
+	User *models.UserVerfication `json:"user"`
+}
+
+type CreateUnverifiedUserResponse struct {
+	UserID nanoid.NanoID `json:"user_id"`
+}
+
+type UpdateUserRequest struct {
+	UserID nanoid.NanoID          `jspn:"user_id"`
+	Values map[string]interface{} `json:"values"`
+}
+
+type UpdateUserResponse struct {
+	Users *[]models.UserVerfication
 }

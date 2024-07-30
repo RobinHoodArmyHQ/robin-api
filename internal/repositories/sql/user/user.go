@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type impl struct {
@@ -53,42 +54,68 @@ func (i *impl) GetUser(req *user.GetUserRequest) (*user.GetUserResponse, error) 
 	}, nil
 }
 
-func (i *impl) CheckIfUserExists(req *user.CheckIfUserExistsRequest) (*user.CheckIfUserExistsResponse, error) {
-	userData := &models.User{}
-	exec := i.db.Master().First(userData, "email_id = ?", req.EmailId)
-
-	if exec.Error != nil {
-		i.logger.Error("ERROR_CHECK_IF_USER_EXISTS", zap.Error(exec.Error))
-		return nil, exec.Error
-	}
-
-	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
-		i.logger.Info("user not found", zap.String("email_id", req.EmailId))
-		return &user.CheckIfUserExistsResponse{
-			IsExisting: false,
-		}, nil
-	}
-
-	return &user.CheckIfUserExistsResponse{
-		IsExisting: true,
-	}, nil
-}
-
-func (i *impl) GetUserByEmailId(req *user.GetUserByEmailIdRequest) (*user.GetUserByEmailIdResponse, error) {
+func (i *impl) GetUserByEmail(req *user.GetUserByEmailRequest) (*user.GetUserByEmailResponse, error) {
 	userData := &models.User{}
 	exec := i.db.Master().First(userData, "email_id=?", req.EmailId)
-
-	if exec.Error != nil {
-		i.logger.Error("ERROR_GET_USER_BY_EMAIL_ID", zap.Error(exec.Error))
-		return nil, exec.Error
-	}
 
 	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
 		i.logger.Info("user not found", zap.String("email_id", req.EmailId))
 		return nil, nil
 	}
 
-	return &user.GetUserByEmailIdResponse{
-		User: userData,
-	}, nil
+	if exec.Error != nil {
+		i.logger.Error("ERROR_GET_USER_BY_EMAIL_ID", zap.Error(exec.Error))
+		return nil, exec.Error
+	}
+
+	return &user.GetUserByEmailResponse{User: userData}, nil
+}
+
+func (i *impl) GetUserByUserID(req *user.GetUserByUserIdRequest) (*user.GetUserByUserIdResponse, error) {
+	userData := &models.UserVerfication{}
+	exec := i.db.Master().Find(userData, "user_id=?", req.UserID)
+
+	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
+		i.logger.Error("user not found", zap.String("user_id", req.UserID.String()))
+		return nil, nil
+	}
+
+	if exec.Error != nil {
+		i.logger.Error("ERROR_GET_USER_BY_USER_ID", zap.Error(exec.Error))
+		return nil, exec.Error
+	}
+
+	return &user.GetUserByUserIdResponse{User: userData}, nil
+}
+
+func (i *impl) CreateUnverifiedUser(req *user.CreateUnverifiedUserRequest) (*user.CreateUnverifiedUserResponse, error) {
+	var err error
+	req.User.UserID, err = nanoid.GetID()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate user id: %v", err)
+	}
+
+	err = i.db.Master().Create(req.User).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %v", err)
+	}
+
+	return &user.CreateUnverifiedUserResponse{UserID: req.User.UserID}, nil
+}
+
+func (i *impl) UpdateUser(req *user.UpdateUserRequest) (*user.UpdateUserResponse, error) {
+	model := &[]models.UserVerfication{}
+	exec := i.db.Master().Model(model).Clauses(clause.Returning{}).Updates(req.Values).Where("user_id = ?", req.UserID)
+
+	if exec.Error != nil {
+		i.logger.Error("ERROR_GET_USER_BY_USER_ID", zap.Error(exec.Error))
+		return nil, exec.Error
+	}
+
+	records := user.UpdateUserResponse{
+		Users: model,
+	}
+
+	return &records, nil
 }

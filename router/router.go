@@ -43,6 +43,8 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 		authRoutes.POST("", auth.AuthHandler)
 		authRoutes.POST("/register", auth.RegisterUser)
 		authRoutes.POST("/login", auth.LoginUser)
+		authRoutes.POST("/verifyOtp", auth.VerifyOtp)
+		authRoutes.POST("/resendOtp", auth.ResendOtp)
 	}
 
 	eventGroup := r.Group("/event")
