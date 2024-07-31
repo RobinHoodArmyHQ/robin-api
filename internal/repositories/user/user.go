@@ -55,7 +55,7 @@ type CreateUnverifiedUserResponse struct {
 }
 
 type UpdateUserRequest struct {
-	UserID nanoid.NanoID          `jspn:"user_id"`
+	UserID nanoid.NanoID          `json:"user_id"`
 	Values map[string]interface{} `json:"values"`
 }
 
