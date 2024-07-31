@@ -1,0 +1,1 @@
+ALTER TABLE `locations` ADD COLUMN `city_id` MEDIUMINT unsigned NULL DEFAULT NULL;
