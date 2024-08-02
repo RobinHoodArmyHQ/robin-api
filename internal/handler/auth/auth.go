@@ -104,9 +104,9 @@ func RegisterUser(c *gin.Context) {
 
 	// create a new user in user_verificatons table
 	extraDetails := map[string]interface{}{
-		"first_name":      request.FirstName,
-		"last_name":       request.LastName,
-		"password_hashed": hashedPassword,
+		"first_name":    request.FirstName,
+		"last_name":     request.LastName,
+		"password_hash": hashedPassword,
 	}
 
 	newUserData := &models.UserVerfication{
@@ -243,7 +243,7 @@ func VerifyOtp(c *gin.Context) {
 		FirstName:    user.User.ExtraDetails["first_name"].(string),
 		LastName:     user.User.ExtraDetails["last_name"].(string),
 		EmailId:      user.User.EmailId,
-		PasswordHash: user.User.ExtraDetails["password_hashed"].(string),
+		PasswordHash: user.User.ExtraDetails["password_hash"].(string),
 		UserID:       user.User.UserID,
 	}
 
