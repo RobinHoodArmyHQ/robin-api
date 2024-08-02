@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/RobinHoodArmyHQ/robin-api/models"
-	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 )
 
 type RegisterUserRequest struct {
@@ -14,8 +13,8 @@ type RegisterUserRequest struct {
 
 type RegisterUserResponse struct {
 	Status    models.Status
-	IsNewUser bool          `json:"is_new_user,omitempty"`
-	UserID    nanoid.NanoID `json:"user_id,omitempty"`
+	IsNewUser bool   `json:"is_new_user,omitempty"`
+	UserID    string `json:"user_id,omitempty"`
 }
 
 type LoginUserRequest struct {

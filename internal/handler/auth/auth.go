@@ -131,7 +131,7 @@ func RegisterUser(c *gin.Context) {
 	// TO-DO: send verification otp via aws-ses
 
 	c.JSON(http.StatusCreated, RegisterUserResponse{
-		UserID: newUser.UserID,
+		UserID: newUser.UserID.String(),
 		Status: *models.StatusSuccess(),
 	})
 }
