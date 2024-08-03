@@ -12,6 +12,10 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/user"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/RobinHoodArmyHQ/robin-api/router"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
@@ -47,6 +51,8 @@ func main() {
 		env.WithUserRepository(user.New(logger, dbConn)),
 		env.WithCheckInRepository(checkin.New(logger, dbConn)),
 		env.WithLocationRepository(sql.NewLocationRepository(logger, dbConn)),
+		env.WithPhotoRepository(sql.NewPhotoRepository(logger, dbConn)),
+		env.WithS3Service(initializeS3()),
 	)
 
 	r := router.Initialize(ctx, ev)
@@ -61,4 +67,19 @@ func main() {
 		panic(err)
 	}
 
+}
+
+func initializeS3() *s3.S3 {
+	sess, err := session.NewSession(&aws.Config{
+		Credentials:      credentials.NewStaticCredentials(viper.GetString("s3.access_key_id"), viper.GetString("s3.secret_access_key"), ""),
+		S3ForcePathStyle: aws.Bool(true),
+		Region:           aws.String(viper.GetString("s3.region")),
+		Endpoint:         aws.String(viper.GetString("s3.endpoint")),
+	})
+
+	if err != nil {
+		panic(fmt.Errorf("error creating aws session: %w", err))
+	}
+
+	return s3.New(sess)
 }

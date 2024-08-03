@@ -2,12 +2,14 @@ package router
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/auth"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/checkin"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/event"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/location"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/user"
-	"net/http"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/services/photo"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/gin-gonic/gin"
@@ -43,12 +45,14 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 		authRoutes.POST("", auth.AuthHandler)
 	}
 
-	eventGroup := r.Group("/event")
-	eventGroup.Use(isUserLoggedIn)
+	r.Use(isUserLoggedIn)
 	{
-		eventGroup.GET("/:event_id", event.GetEventHandler)
-		eventGroup.GET("/", event.GetEventsHandler)
-		eventGroup.POST("/", isAdminUser, event.CreateEventHandler)
+		r.GET("/event/:event_id", event.GetEventHandler)
+		r.POST("/event", isAdminUser, event.CreateEventHandler)
+		r.GET("/events", event.GetEventsHandler)
+
+		r.POST("/photo", photo.PhotoUploadHandler)
+
 	}
 
 	userGroup := r.Group("/user")

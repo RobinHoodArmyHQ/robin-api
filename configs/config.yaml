@@ -12,3 +12,9 @@ mysql:
   max_idle_connections: 10
   connection_max_lifetime: 0
 
+s3:
+  bucket_checkin_photos: photos
+  region: ap-south-1
+  endpoint: http://localstack:4566
+  access_key_id: access_key_id
+  secret_access_key: secret_access_key

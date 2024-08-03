@@ -50,9 +50,11 @@ func (r *EventRepository) GetEvent(req *eventModel.GetEventRequest) (*eventModel
 		Preload("EventLocation.City").
 		Preload("EventLocation.City.Country").
 		First(event, "event_id = ?", req.EventID)
+
 	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
-		r.logger.Error("event not found", zap.String("event_id", req.EventID.String()))
-		return &eventModel.GetEventResponse{}, nil
+		err := fmt.Errorf("event not found: %v", req.EventID)
+		r.logger.Error(err.Error())
+		return &eventModel.GetEventResponse{}, err
 	}
 
 	return &eventModel.GetEventResponse{
