@@ -43,11 +43,11 @@ type GetUserByUserIdRequest struct {
 }
 
 type GetUserByUserIdResponse struct {
-	User *models.UserVerfication `json:"user"`
+	User *models.UserVerification `json:"user"`
 }
 
 type CreateUnverifiedUserRequest struct {
-	User *models.UserVerfication `json:"user"`
+	User *models.UserVerification `json:"user"`
 }
 
 type CreateUnverifiedUserResponse struct {
@@ -60,5 +60,5 @@ type UpdateUserRequest struct {
 }
 
 type UpdateUserResponse struct {
-	Users *[]models.UserVerfication
+	Users *[]models.UserVerification
 }

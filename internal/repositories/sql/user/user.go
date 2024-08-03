@@ -26,14 +26,7 @@ func New(logger *zap.Logger, db *database.SqlDB) user.User {
 }
 
 func (i *impl) CreateUser(req *user.CreateUserRequest) (*user.CreateUserResponse, error) {
-	var err error
-	req.User.ID = 0
-	req.User.UserID, err = nanoid.GetID()
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate user id: %v", err)
-	}
-
-	err = i.db.Master().Create(req.User).Error
+	err := i.db.Master().Create(req.User).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %v", err)
 	}
@@ -72,8 +65,8 @@ func (i *impl) GetUserByEmail(req *user.GetUserByEmailRequest) (*user.GetUserByE
 }
 
 func (i *impl) GetUserByUserID(req *user.GetUserByUserIdRequest) (*user.GetUserByUserIdResponse, error) {
-	userData := &models.UserVerfication{}
-	exec := i.db.Master().Find(userData, "user_id=?", req.UserID)
+	userData := &models.UserVerification{}
+	exec := i.db.Master().First(userData, "user_id=?", req.UserID)
 
 	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
 		i.logger.Error("user not found", zap.String("user_id", req.UserID.String()))
@@ -105,11 +98,11 @@ func (i *impl) CreateUnverifiedUser(req *user.CreateUnverifiedUserRequest) (*use
 }
 
 func (i *impl) UpdateUser(req *user.UpdateUserRequest) (*user.UpdateUserResponse, error) {
-	model := &[]models.UserVerfication{}
-	exec := i.db.Master().Model(model).Clauses(clause.Returning{}).Updates(req.Values).Where("user_id = ?", req.UserID)
+	model := &[]models.UserVerification{}
+	exec := i.db.Master().Model(model).Clauses(clause.Returning{}).Where("user_id=?", req.UserID).Updates(req.Values)
 
 	if exec.Error != nil {
-		i.logger.Error("ERROR_GET_USER_BY_USER_ID", zap.Error(exec.Error))
+		i.logger.Error("ERROR_UPDATE_USER", zap.Error(exec.Error))
 		return nil, exec.Error
 	}
 

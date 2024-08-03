@@ -12,9 +12,9 @@ type RegisterUserRequest struct {
 }
 
 type RegisterUserResponse struct {
-	Status    models.Status
-	IsNewUser bool   `json:"is_new_user,omitempty"`
-	UserID    string `json:"user_id,omitempty"`
+	Status    *models.Status `json:"status,omitempty"`
+	IsNewUser uint8          `json:"is_new_user,omitempty"`
+	UserID    string         `json:"user_id,omitempty"`
 }
 
 type LoginUserRequest struct {
@@ -23,8 +23,8 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	Status models.Status
-	Token  string `json:"token,omitempty"`
+	Status *models.Status `json:"status,omitempty"`
+	Token  string         `json:"token,omitempty"`
 }
 
 type VerifyOtpRequest struct {
@@ -33,8 +33,8 @@ type VerifyOtpRequest struct {
 }
 
 type VerifyOtpResponse struct {
-	Token  string `json:"token,omitempty"`
-	Status models.Status
+	Token  string         `json:"token,omitempty"`
+	Status *models.Status `json:"status,omitempty"`
 }
 
 type ResendOtpRequest struct {
@@ -42,5 +42,5 @@ type ResendOtpRequest struct {
 }
 
 type ResendOtpResponse struct {
-	Status models.Status
+	Status *models.Status `json:"status,omitempty"`
 }

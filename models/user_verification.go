@@ -6,7 +6,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 )
 
-type UserVerfication struct {
+type UserVerification struct {
 	ID             uint64                 `json:"-" gorm:"primaryKey"`
 	UserID         nanoid.NanoID          `json:"user_id,omitempty"`
 	EmailId        string                 `json:"email_id"`

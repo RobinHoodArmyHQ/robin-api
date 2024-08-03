@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -48,7 +49,7 @@ func RegisterUser(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, RegisterUserResponse{
-			Status: *models.StatusFailed(fmt.Sprintln("Invalid inputs")),
+			Status: models.StatusFailed(fmt.Sprintln("Invalid inputs")),
 		})
 		return
 	}
@@ -62,15 +63,16 @@ func RegisterUser(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
 
 	if user != nil {
-		c.JSON(http.StatusConflict, RegisterUserResponse{
-			Status:    *models.StatusSuccess(),
-			IsNewUser: false,
+		log.Printf("existing user")
+		c.JSON(http.StatusOK, RegisterUserResponse{
+			Status:    models.StatusSuccess(),
+			IsNewUser: 0,
 		})
 		return
 	}
@@ -79,7 +81,7 @@ func RegisterUser(c *gin.Context) {
 	hashedPassword, err := util.HashPassword(request.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -88,7 +90,7 @@ func RegisterUser(c *gin.Context) {
 	otp, err := util.GenerateOtp(6)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -97,7 +99,7 @@ func RegisterUser(c *gin.Context) {
 	uiOtp, err := strconv.ParseUint(otp, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -109,7 +111,7 @@ func RegisterUser(c *gin.Context) {
 		"password_hash": hashedPassword,
 	}
 
-	newUserData := &models.UserVerfication{
+	newUserData := &models.UserVerification{
 		EmailId:        request.EmailId,
 		Otp:            uiOtp,
 		OtpGeneratedAt: time.Now(),
@@ -123,7 +125,7 @@ func RegisterUser(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -132,7 +134,7 @@ func RegisterUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, RegisterUserResponse{
 		UserID: newUser.UserID.String(),
-		Status: *models.StatusSuccess(),
+		Status: models.StatusSuccess(),
 	})
 }
 
@@ -141,7 +143,7 @@ func LoginUser(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, LoginUserResponse{
-			Status: *models.StatusFailed(fmt.Sprintln("Invalid credentials")),
+			Status: models.StatusFailed(fmt.Sprintln("Invalid credentials")),
 		})
 		return
 	}
@@ -155,14 +157,14 @@ func LoginUser(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, LoginUserResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
 
 	if user == nil {
-		c.JSON(http.StatusNoContent, LoginUserResponse{
-			Status: *models.StatusFailed(fmt.Sprintf("No user found with given email_id: %s", request.EmailId)),
+		c.JSON(http.StatusBadRequest, LoginUserResponse{
+			Status: models.StatusFailed(fmt.Sprintln("Incorrect email or password")),
 		})
 		return
 	}
@@ -172,7 +174,7 @@ func LoginUser(c *gin.Context) {
 
 	if !ok {
 		c.JSON(http.StatusBadRequest, LoginUserResponse{
-			Status: *models.StatusFailed(fmt.Sprintln("Incorrect email or password")),
+			Status: models.StatusFailed(fmt.Sprintln("Incorrect email or password")),
 		})
 		return
 	}
@@ -182,13 +184,13 @@ func LoginUser(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, LoginUserResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, LoginUserResponse{
-		Status: *models.StatusSuccess(),
+		Status: models.StatusSuccess(),
 		Token:  jwtToken,
 	})
 }
@@ -198,7 +200,7 @@ func VerifyOtp(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
-			Status: *models.StatusFailed(fmt.Sprintln("")),
+			Status: models.StatusFailed(fmt.Sprintln("")),
 		})
 		return
 	}
@@ -210,14 +212,31 @@ func VerifyOtp(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
 
 	if user == nil {
-		c.JSON(http.StatusNoContent, VerifyOtpResponse{
-			Status: *models.StatusFailed(fmt.Sprintf("No user found with given user_id: %s", request.UserID)),
+		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
+			Status: models.StatusFailed(fmt.Sprintf("No user found with given user_id: %s", request.UserID)),
+		})
+		return
+	}
+
+	// check if we have already created a user with this users email_id
+	existingUser, err := userRepo.GetUserByEmail(&userrepo.GetUserByEmailRequest{EmailId: user.User.EmailId})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if existingUser != nil {
+		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
+			Status: models.StatusFailed("User already verified, please login to continue"),
 		})
 		return
 	}
@@ -226,7 +245,7 @@ func VerifyOtp(c *gin.Context) {
 	currTime := time.Now()
 	if currTime.After(user.User.OtpExpiresAt) {
 		c.JSON(http.StatusOK, VerifyOtpResponse{
-			Status: *models.StatusFailed("Otp Expired"),
+			Status: models.StatusFailed("Otp Expired"),
 		})
 		return
 	}
@@ -234,7 +253,7 @@ func VerifyOtp(c *gin.Context) {
 	// match the otp
 	if request.Otp != user.User.Otp {
 		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
-			Status: *models.StatusFailed("Wrong Otp"),
+			Status: models.StatusFailed("Wrong Otp"),
 		})
 		return
 	}
@@ -254,7 +273,7 @@ func VerifyOtp(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -269,7 +288,7 @@ func VerifyOtp(c *gin.Context) {
 
 	if _, err := userRepo.UpdateUser(updateUser); err != nil {
 		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -279,13 +298,13 @@ func VerifyOtp(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, VerifyOtpResponse{
-		Status: *models.StatusSuccess(),
+		Status: models.StatusSuccess(),
 		Token:  token,
 	})
 }
@@ -295,7 +314,7 @@ func ResendOtp(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, ResendOtpResponse{
-			Status: *models.StatusFailed("Missing Params"),
+			Status: models.StatusFailed("Missing Params"),
 		})
 		return
 	}
@@ -308,7 +327,7 @@ func ResendOtp(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -324,7 +343,7 @@ func ResendOtp(c *gin.Context) {
 
 	if _, err := userRepo.UpdateUser(updateUser); err != nil {
 		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
-			Status: *models.StatusSomethingWentWrong(),
+			Status: models.StatusSomethingWentWrong(),
 		})
 		return
 	}
@@ -332,6 +351,6 @@ func ResendOtp(c *gin.Context) {
 	// TO-DO resend verification code
 
 	c.JSON(http.StatusOK, ResendOtpResponse{
-		Status: *models.StatusSuccess(),
+		Status: models.StatusSuccess(),
 	})
 }
