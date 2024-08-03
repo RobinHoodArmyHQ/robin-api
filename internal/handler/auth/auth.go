@@ -208,7 +208,7 @@ func VerifyOtp(c *gin.Context) {
 	userRepo := env.FromContext(c).UserRepository
 
 	// get user by user_id
-	user, err := userRepo.GetUserByUserID(&userrepo.GetUserByUserIdRequest{UserID: nanoid.NanoID(request.UserID)})
+	user, err := userRepo.GetUnverifiedUserByUserID(&userrepo.GetUnverifiedUserByUserIdRequest{UserID: nanoid.NanoID(request.UserID)})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
@@ -279,14 +279,14 @@ func VerifyOtp(c *gin.Context) {
 	}
 
 	// set user verified in user_verifications table
-	updateUser := &userrepo.UpdateUserRequest{
+	updateUser := &userrepo.UpdateUnverifiedUserRequest{
 		UserID: user.User.UserID,
 		Values: map[string]interface{}{
 			"is_verified": 1,
 		},
 	}
 
-	if _, err := userRepo.UpdateUser(updateUser); err != nil {
+	if _, err := userRepo.UpdateUnverifiedUser(updateUser); err != nil {
 		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
 			Status: models.StatusSomethingWentWrong(),
 		})
@@ -321,7 +321,7 @@ func ResendOtp(c *gin.Context) {
 
 	userRepo := env.FromContext(c).UserRepository
 
-	user, err := userRepo.GetUserByUserID(&userrepo.GetUserByUserIdRequest{
+	user, err := userRepo.GetUnverifiedUserByUserID(&userrepo.GetUnverifiedUserByUserIdRequest{
 		UserID: nanoid.NanoID(request.UserID),
 	})
 
@@ -333,7 +333,7 @@ func ResendOtp(c *gin.Context) {
 	}
 
 	// update otp_retry_count
-	updateUser := &userrepo.UpdateUserRequest{
+	updateUser := &userrepo.UpdateUnverifiedUserRequest{
 		UserID: nanoid.NanoID(request.UserID),
 		Values: map[string]interface{}{
 			"otp_expires_at":  time.Now().Add(10 * time.Minute),
@@ -341,7 +341,7 @@ func ResendOtp(c *gin.Context) {
 		},
 	}
 
-	if _, err := userRepo.UpdateUser(updateUser); err != nil {
+	if _, err := userRepo.UpdateUnverifiedUser(updateUser); err != nil {
 		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
 			Status: models.StatusSomethingWentWrong(),
 		})

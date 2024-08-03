@@ -64,7 +64,7 @@ func (i *impl) GetUserByEmail(req *user.GetUserByEmailRequest) (*user.GetUserByE
 	return &user.GetUserByEmailResponse{User: userData}, nil
 }
 
-func (i *impl) GetUserByUserID(req *user.GetUserByUserIdRequest) (*user.GetUserByUserIdResponse, error) {
+func (i *impl) GetUnverifiedUserByUserID(req *user.GetUnverifiedUserByUserIdRequest) (*user.GetUnverifiedUserByUserIdResponse, error) {
 	userData := &models.UserVerification{}
 	exec := i.db.Master().First(userData, "user_id=?", req.UserID)
 
@@ -78,7 +78,7 @@ func (i *impl) GetUserByUserID(req *user.GetUserByUserIdRequest) (*user.GetUserB
 		return nil, exec.Error
 	}
 
-	return &user.GetUserByUserIdResponse{User: userData}, nil
+	return &user.GetUnverifiedUserByUserIdResponse{User: userData}, nil
 }
 
 func (i *impl) CreateUnverifiedUser(req *user.CreateUnverifiedUserRequest) (*user.CreateUnverifiedUserResponse, error) {
@@ -97,7 +97,7 @@ func (i *impl) CreateUnverifiedUser(req *user.CreateUnverifiedUserRequest) (*use
 	return &user.CreateUnverifiedUserResponse{UserID: req.User.UserID}, nil
 }
 
-func (i *impl) UpdateUser(req *user.UpdateUserRequest) (*user.UpdateUserResponse, error) {
+func (i *impl) UpdateUnverifiedUser(req *user.UpdateUnverifiedUserRequest) (*user.UpdateUnverifiedUserResponse, error) {
 	model := &[]models.UserVerification{}
 	exec := i.db.Master().Model(model).Clauses(clause.Returning{}).Where("user_id=?", req.UserID).Updates(req.Values)
 
@@ -106,7 +106,7 @@ func (i *impl) UpdateUser(req *user.UpdateUserRequest) (*user.UpdateUserResponse
 		return nil, exec.Error
 	}
 
-	records := user.UpdateUserResponse{
+	records := user.UpdateUnverifiedUserResponse{
 		Users: model,
 	}
 
