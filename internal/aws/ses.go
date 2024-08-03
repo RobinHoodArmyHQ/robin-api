@@ -7,14 +7,15 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
+	"github.com/spf13/viper"
 )
 
 // SendEmailSES sends email to specified email IDs
 func SendEmailSES(messageBody string, subject string, fromEmail string, recipient models.Recipient) (err error) {
 	// create new AWS session
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1")},
-	)
+		Region: aws.String(viper.GetString("aws.region")),
+	})
 	if err != nil {
 		log.Println("Error occurred while creating aws session", err)
 		return

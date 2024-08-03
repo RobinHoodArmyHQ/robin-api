@@ -12,3 +12,5 @@ mysql:
   max_idle_connections: 10
   connection_max_lifetime: 0
 
+aws:
+  region: us-east-1
