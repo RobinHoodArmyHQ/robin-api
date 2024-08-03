@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"log"
+
 	"net/http"
 	"strconv"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 )
 
 func AuthHandler(c *gin.Context) {
@@ -69,7 +71,6 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	if user != nil {
-		log.Printf("existing user")
 		c.JSON(http.StatusOK, RegisterUserResponse{
 			Status:    models.StatusSuccess(),
 			IsNewUser: 0,
@@ -279,14 +280,14 @@ func VerifyOtp(c *gin.Context) {
 	}
 
 	// set user verified in user_verifications table
-	updateUser := &userrepo.UpdateUnverifiedUserRequest{
+	updateUnverifiedUser := &userrepo.UpdateUnverifiedUserRequest{
 		UserID: user.User.UserID,
 		Values: map[string]interface{}{
 			"is_verified": 1,
 		},
 	}
 
-	if _, err := userRepo.UpdateUnverifiedUser(updateUser); err != nil {
+	if _, err := userRepo.UpdateUnverifiedUser(updateUnverifiedUser); err != nil {
 		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
 			Status: models.StatusSomethingWentWrong(),
 		})
@@ -333,7 +334,7 @@ func ResendOtp(c *gin.Context) {
 	}
 
 	// update otp_retry_count
-	updateUser := &userrepo.UpdateUnverifiedUserRequest{
+	updateUnverifiedUser := &userrepo.UpdateUnverifiedUserRequest{
 		UserID: nanoid.NanoID(request.UserID),
 		Values: map[string]interface{}{
 			"otp_expires_at":  time.Now().Add(10 * time.Minute),
@@ -341,7 +342,7 @@ func ResendOtp(c *gin.Context) {
 		},
 	}
 
-	if _, err := userRepo.UpdateUnverifiedUser(updateUser); err != nil {
+	if _, err := userRepo.UpdateUnverifiedUser(updateUnverifiedUser); err != nil {
 		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
 			Status: models.StatusSomethingWentWrong(),
 		})
@@ -351,6 +352,101 @@ func ResendOtp(c *gin.Context) {
 	// TO-DO resend verification code
 
 	c.JSON(http.StatusOK, ResendOtpResponse{
+		Status: models.StatusSuccess(),
+	})
+}
+
+func SendPasswordResetLink(c *gin.Context) {
+	var request SendResetPasswordLinkRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, SendResetPasswordLinkResponse{
+			Status: models.StatusFailed("Invalid inputs"),
+		})
+		return
+	}
+
+	// get user by email
+	userRepo := env.FromContext(c).UserRepository
+	user, err := userRepo.GetUserByEmail(&userrepo.GetUserByEmailRequest{EmailId: request.EmailId})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, SendResetPasswordLinkResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusBadRequest, SendResetPasswordLinkResponse{
+			Status: models.StatusFailed("No user exist with such email"),
+		})
+		return
+	}
+
+	// add user_id in password reset link
+	resetLink := fmt.Sprintf("%s?user_id=%s", viper.GetString("auth.password_reset_link"), user.User.UserID.String())
+
+	log.Print("Reset_Password_link:", resetLink)
+
+	// TO-DO send link on the registered/verified email
+
+	c.JSON(http.StatusOK, SendResetPasswordLinkResponse{
+		Status: models.StatusSuccess(),
+	})
+}
+
+func ResetPassword(c *gin.Context) {
+	var request ResetPasswordRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, ResetPasswordResponse{
+			Status: models.StatusFailed("Invalid inputs"),
+		})
+		return
+	}
+
+	userRepo := env.FromContext(c).UserRepository
+	user, err := userRepo.GetUser(&userrepo.GetUserRequest{UserID: nanoid.NanoID(request.UserID)})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ResetPasswordResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusBadRequest, ResetPasswordResponse{
+			Status: models.StatusFailed("No user found with this user_id"),
+		})
+		return
+	}
+
+	passwordHash, err := util.HashPassword(request.NewPassword)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	updateUser := &userrepo.UpdateUserRequest{
+		UserID: nanoid.NanoID(request.UserID),
+		Values: map[string]interface{}{
+			"password_hash": passwordHash,
+		},
+	}
+
+	if _, err := userRepo.UpdateUser(updateUser); err != nil {
+		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, ResetPasswordResponse{
 		Status: models.StatusSuccess(),
 	})
 }

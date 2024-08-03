@@ -64,6 +64,22 @@ func (i *impl) GetUserByEmail(req *user.GetUserByEmailRequest) (*user.GetUserByE
 	return &user.GetUserByEmailResponse{User: userData}, nil
 }
 
+func (i *impl) UpdateUser(req *user.UpdateUserRequest) (*user.UpdateUserResponse, error) {
+	model := &[]models.User{}
+	exec := i.db.Master().Model(model).Clauses(clause.Returning{}).Where("user_id = ?", req.UserID).Updates(req.Values)
+
+	if exec.Error != nil {
+		i.logger.Error("ERROR_UPDATE_USER", zap.Error(exec.Error))
+		return nil, exec.Error
+	}
+
+	records := user.UpdateUserResponse{
+		Users: model,
+	}
+
+	return &records, nil
+}
+
 func (i *impl) GetUnverifiedUserByUserID(req *user.GetUnverifiedUserByUserIdRequest) (*user.GetUnverifiedUserByUserIdResponse, error) {
 	userData := &models.UserVerification{}
 	exec := i.db.Master().First(userData, "user_id=?", req.UserID)
@@ -74,7 +90,7 @@ func (i *impl) GetUnverifiedUserByUserID(req *user.GetUnverifiedUserByUserIdRequ
 	}
 
 	if exec.Error != nil {
-		i.logger.Error("ERROR_GET_USER_BY_USER_ID", zap.Error(exec.Error))
+		i.logger.Error("ERROR_GET_UNVERIFIED_USER_BY_USER_ID", zap.Error(exec.Error))
 		return nil, exec.Error
 	}
 
@@ -102,7 +118,7 @@ func (i *impl) UpdateUnverifiedUser(req *user.UpdateUnverifiedUserRequest) (*use
 	exec := i.db.Master().Model(model).Clauses(clause.Returning{}).Where("user_id=?", req.UserID).Updates(req.Values)
 
 	if exec.Error != nil {
-		i.logger.Error("ERROR_UPDATE_USER", zap.Error(exec.Error))
+		i.logger.Error("ERROR_UPDATE_UNVERIFIED_USER", zap.Error(exec.Error))
 		return nil, exec.Error
 	}
 

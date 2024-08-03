@@ -44,3 +44,20 @@ type ResendOtpRequest struct {
 type ResendOtpResponse struct {
 	Status *models.Status `json:"status,omitempty"`
 }
+
+type SendResetPasswordLinkRequest struct {
+	EmailId string `json:"email_id" binding:"required,email"`
+}
+
+type SendResetPasswordLinkResponse struct {
+	Status *models.Status `json:"status,omitempty"`
+}
+
+type ResetPasswordRequest struct {
+	UserID      string `json:"user_id" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
+type ResetPasswordResponse struct {
+	Status *models.Status `json:"status,omitempty"`
+}
