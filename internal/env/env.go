@@ -2,11 +2,10 @@ package env
 
 import (
 	"context"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
-
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/event"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/gin-gonic/gin"
 )

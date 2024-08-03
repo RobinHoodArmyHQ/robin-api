@@ -48,7 +48,7 @@ func NewConnection(options ...func(*connection) error) (*connection, error) {
 		maxIdleConnections: 10,
 		connMaxLifetime:    time.Hour,
 		debug:              true,
-		dbParams:           "allowNativePasswords=true&charset=utf8&parseTime=true&timeout=5s",
+		dbParams:           "allowNativePasswords=true&charset=utf8mb4&parseTime=true&timeout=5s",
 	}
 
 	for _, option := range options {

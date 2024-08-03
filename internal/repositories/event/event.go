@@ -8,6 +8,7 @@ import (
 type EventRepository interface {
 	CreateEvent(req *CreateEventRequest) (*CreateEventResponse, error)
 	GetEvent(req *GetEventRequest) (*GetEventResponse, error)
+	GetEventsByLocation(req *GetEventsByLocationRequest) (*GetEventsByLocationResponse, error)
 }
 
 type CreateEventRequest struct {
@@ -24,4 +25,14 @@ type GetEventRequest struct {
 
 type GetEventResponse struct {
 	Event *models.Event
+}
+
+type GetEventsByLocationRequest struct {
+	CityId int32
+	Limit  int
+	Offset int
+}
+
+type GetEventsByLocationResponse struct {
+	Events []*models.Event
 }

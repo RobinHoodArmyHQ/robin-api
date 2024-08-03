@@ -1,16 +1,16 @@
 package models
 
 import (
-	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"time"
+
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 )
 
-type EventType uint8
+type EventType string
 
 const (
-	EventInvalid EventType = iota
-	EventMealDrive
-	EventAcademy
+	EventMealDrive EventType = "MEAL_DRIVE"
+	EventAcademy   EventType = "ACADEMY"
 )
 
 type VehicleType uint8
@@ -34,20 +34,20 @@ var (
 )
 
 type Event struct {
-	ID              int64         `json:"-" gorm:"primaryKey"`
-	EventId         nanoid.NanoID `json:"event_id,omitempty"`
-	Name            string        `json:"name,omitempty"`
-	Description     string        `json:"description,omitempty"`
-	StartTime       time.Time     `json:"start_time,omitempty"`
-	EventType       EventType     `json:"event_type,omitempty"`
-	EventLocationID int64         `json:"-"`
-	EventLocation   *Location     `json:"event_location,omitempty" gorm:"foreignKey:EventLocationID;references:LocationId"`
-	MinRobins       uint8         `json:"min_robins,omitempty"`
-	MaxRobins       uint8         `json:"max_robins,omitempty"`
-	CreatedBy       int64         `json:"-"`
-	UpdatedBy       int64         `json:"-" gorm:"-"`
-	CreatedAt       time.Time     `json:"created_at,omitempty" gorm:"autoCreateTime"`
-	UpdatedAt       time.Time     `json:"-" gorm:"-"`
+	ID            int64         `json:"-" gorm:"primaryKey"`
+	EventId       nanoid.NanoID `json:"event_id,omitempty"`
+	Title         string        `json:"title,omitempty"`
+	Description   string        `json:"description,omitempty"`
+	StartTime     time.Time     `json:"start_time,omitempty"`
+	EventType     EventType     `json:"event_type,omitempty"`
+	LocationID    int64         `json:"-"`
+	EventLocation *Location     `json:"event_location,omitempty" gorm:"foreignKey:LocationID;references:ID"`
+	MinRobins     uint8         `json:"min_robins,omitempty"`
+	MaxRobins     uint8         `json:"max_robins,omitempty"`
+	CreatedBy     int64         `json:"-"`
+	UpdatedBy     int64         `json:"-" gorm:"-"`
+	CreatedAt     time.Time     `json:"created_at,omitempty" gorm:"autoCreateTime"`
+	UpdatedAt     time.Time     `json:"-" gorm:"-"`
 }
 
 type CreateEventResponse struct {

@@ -32,3 +32,16 @@ func (r *LocationRepository) GetCities(req *repositories.GetCitiesRequest) (*rep
 		Cities: cities,
 	}, nil
 }
+
+func (r *LocationRepository) GetCityByID(req *repositories.GetCityByCityIDRequest) (*repositories.GetCityByCityIDResponse, error) {
+	city := &models.City{}
+
+	exec := r.db.Master().Preload("Country").First(city, "city_id = ?", req.CityID)
+	if exec.Error != nil {
+		return nil, fmt.Errorf("failed to get city: %v", exec.Error)
+	}
+
+	return &repositories.GetCityByCityIDResponse{
+		City: city,
+	}, nil
+}
