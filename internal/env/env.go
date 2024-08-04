@@ -2,11 +2,13 @@ package env
 
 import (
 	"context"
+
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/event"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +23,9 @@ type Env struct {
 	UserRepository     user.User
 	CheckInRepository  checkin.CheckIn
 	LocationRepository repositories.LocationRepository
+
+	photoRepository repositories.PhotoRepository
+	s3Service       *s3.S3
 }
 
 func FromContext(ctx context.Context) *Env {
@@ -77,4 +82,24 @@ func WithLocationRepository(repo repositories.LocationRepository) func(*Env) {
 	return func(env *Env) {
 		env.LocationRepository = repo
 	}
+}
+
+func WithPhotoRepository(repo repositories.PhotoRepository) func(*Env) {
+	return func(env *Env) {
+		env.photoRepository = repo
+	}
+}
+
+func (env *Env) PhotoRepository() repositories.PhotoRepository {
+	return env.photoRepository
+}
+
+func WithS3Service(svc *s3.S3) func(*Env) {
+	return func(env *Env) {
+		env.s3Service = svc
+	}
+}
+
+func (env *Env) S3Service() *s3.S3 {
+	return env.s3Service
 }

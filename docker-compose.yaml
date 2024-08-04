@@ -41,6 +41,20 @@ services:
     networks:
       - rha_local
   
+  localstack:
+    container_name: localstack
+    hostname: localstack
+    image: localstack/localstack:3.6
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3:4566
+      - HOSTNAME=localstack
+    volumes:
+      - ./scripts/localstack-setup.sh:/etc/localstack/init/ready.d/localstack-setup.sh
+    networks:
+      - rha_local
+
   maildev:
     image: maildev/maildev
     restart: always
