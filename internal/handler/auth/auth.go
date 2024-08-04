@@ -2,12 +2,20 @@ package auth
 
 import (
 	"fmt"
+	"log"
+
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
+	userrepo "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/util"
 	"github.com/RobinHoodArmyHQ/robin-api/models"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 )
 
 func AuthHandler(c *gin.Context) {
@@ -35,5 +43,410 @@ func AuthHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, models.AuthResponse{
 		Status:    models.StatusSuccess(),
 		RequestID: requestId,
+	})
+}
+
+func RegisterUser(c *gin.Context) {
+	var request RegisterUserRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, RegisterUserResponse{
+			Status: models.StatusFailed(fmt.Sprintln("Invalid inputs")),
+		})
+		return
+	}
+
+	registerUser := &userrepo.GetUserByEmailRequest{
+		EmailId: request.EmailId,
+	}
+
+	userRepo := env.FromContext(c).UserRepository
+	user, err := userRepo.GetUserByEmail(registerUser)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if user != nil {
+		c.JSON(http.StatusOK, RegisterUserResponse{
+			Status:    models.StatusSuccess(),
+			IsNewUser: 0,
+		})
+		return
+	}
+
+	// creating hashed password
+	hashedPassword, err := util.HashPassword(request.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// generate 6 digit OTP
+	otp, err := util.GenerateOtp(6)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// convert otp string to uint64
+	uiOtp, err := strconv.ParseUint(otp, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// create a new user in user_verificatons table
+	extraDetails := map[string]interface{}{
+		"first_name":    request.FirstName,
+		"last_name":     request.LastName,
+		"password_hash": hashedPassword,
+	}
+
+	newUserData := &models.UserVerification{
+		EmailId:        request.EmailId,
+		Otp:            uiOtp,
+		OtpGeneratedAt: time.Now(),
+		OtpExpiresAt:   time.Now().Add(10 * time.Minute),
+		ExtraDetails:   extraDetails,
+	}
+
+	newUser, err := userRepo.CreateUnverifiedUser(&userrepo.CreateUnverifiedUserRequest{
+		User: newUserData,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, RegisterUserResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// TO-DO: send verification otp via aws-ses
+
+	c.JSON(http.StatusCreated, RegisterUserResponse{
+		UserID: newUser.UserID.String(),
+		Status: models.StatusSuccess(),
+	})
+}
+
+func LoginUser(c *gin.Context) {
+	var request LoginUserRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, LoginUserResponse{
+			Status: models.StatusFailed(fmt.Sprintln("Invalid credentials")),
+		})
+		return
+	}
+
+	userRepo := env.FromContext(c).UserRepository
+
+	loginUser := &userrepo.GetUserByEmailRequest{
+		EmailId: request.EmailId,
+	}
+	user, err := userRepo.GetUserByEmail(loginUser)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, LoginUserResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusBadRequest, LoginUserResponse{
+			Status: models.StatusFailed(fmt.Sprintln("Incorrect email or password")),
+		})
+		return
+	}
+
+	// verify user password
+	ok := util.CheckPasswordHash(request.Password, user.User.PasswordHash)
+
+	if !ok {
+		c.JSON(http.StatusBadRequest, LoginUserResponse{
+			Status: models.StatusFailed(fmt.Sprintln("Incorrect email or password")),
+		})
+		return
+	}
+
+	// create a JWT token
+	jwtToken, err := util.GenerateJwt(user.User.UserID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, LoginUserResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, LoginUserResponse{
+		Status: models.StatusSuccess(),
+		Token:  jwtToken,
+	})
+}
+
+func VerifyOtp(c *gin.Context) {
+	var request VerifyOtpRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
+			Status: models.StatusFailed(fmt.Sprintln("")),
+		})
+		return
+	}
+
+	userRepo := env.FromContext(c).UserRepository
+
+	// get user by user_id
+	user, err := userRepo.GetUnverifiedUserByUserID(&userrepo.GetUnverifiedUserByUserIdRequest{UserID: nanoid.NanoID(request.UserID)})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
+			Status: models.StatusFailed(fmt.Sprintf("No user found with given user_id: %s", request.UserID)),
+		})
+		return
+	}
+
+	// check if we have already created a user with this users email_id
+	existingUser, err := userRepo.GetUserByEmail(&userrepo.GetUserByEmailRequest{EmailId: user.User.EmailId})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if existingUser != nil {
+		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
+			Status: models.StatusFailed("User already verified, please login to continue"),
+		})
+		return
+	}
+
+	// check if otp has expired
+	currTime := time.Now()
+	if currTime.After(user.User.OtpExpiresAt) {
+		c.JSON(http.StatusOK, VerifyOtpResponse{
+			Status: models.StatusFailed("Otp Expired"),
+		})
+		return
+	}
+
+	// match the otp
+	if request.Otp != user.User.Otp {
+		c.JSON(http.StatusBadRequest, VerifyOtpResponse{
+			Status: models.StatusFailed("Wrong Otp"),
+		})
+		return
+	}
+
+	newUser := &models.User{
+		FirstName:    user.User.ExtraDetails["first_name"].(string),
+		LastName:     user.User.ExtraDetails["last_name"].(string),
+		EmailId:      user.User.EmailId,
+		PasswordHash: user.User.ExtraDetails["password_hash"].(string),
+		UserID:       user.User.UserID,
+	}
+
+	// now create a new entry in users table
+	createdUser, err := userRepo.CreateUser(&userrepo.CreateUserRequest{
+		User: newUser,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// set user verified in user_verifications table
+	updateUnverifiedUser := &userrepo.UpdateUnverifiedUserRequest{
+		UserID: user.User.UserID,
+		Values: map[string]interface{}{
+			"is_verified": 1,
+		},
+	}
+
+	if _, err := userRepo.UpdateUnverifiedUser(updateUnverifiedUser); err != nil {
+		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// create a new jwt-token
+	token, err := util.GenerateJwt(createdUser.UserID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, VerifyOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, VerifyOtpResponse{
+		Status: models.StatusSuccess(),
+		Token:  token,
+	})
+}
+
+func ResendOtp(c *gin.Context) {
+	var request ResendOtpRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, ResendOtpResponse{
+			Status: models.StatusFailed("Missing Params"),
+		})
+		return
+	}
+
+	userRepo := env.FromContext(c).UserRepository
+
+	user, err := userRepo.GetUnverifiedUserByUserID(&userrepo.GetUnverifiedUserByUserIdRequest{
+		UserID: nanoid.NanoID(request.UserID),
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// update otp_retry_count
+	updateUnverifiedUser := &userrepo.UpdateUnverifiedUserRequest{
+		UserID: nanoid.NanoID(request.UserID),
+		Values: map[string]interface{}{
+			"otp_expires_at":  time.Now().Add(10 * time.Minute),
+			"otp_retry_count": user.User.OtpRetryCount + 1,
+		},
+	}
+
+	if _, err := userRepo.UpdateUnverifiedUser(updateUnverifiedUser); err != nil {
+		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	// TO-DO resend verification code
+
+	c.JSON(http.StatusOK, ResendOtpResponse{
+		Status: models.StatusSuccess(),
+	})
+}
+
+func SendPasswordResetLink(c *gin.Context) {
+	var request SendResetPasswordLinkRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, SendResetPasswordLinkResponse{
+			Status: models.StatusFailed("Invalid inputs"),
+		})
+		return
+	}
+
+	// get user by email
+	userRepo := env.FromContext(c).UserRepository
+	user, err := userRepo.GetUserByEmail(&userrepo.GetUserByEmailRequest{EmailId: request.EmailId})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, SendResetPasswordLinkResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusBadRequest, SendResetPasswordLinkResponse{
+			Status: models.StatusFailed("No user exist with such email"),
+		})
+		return
+	}
+
+	// add user_id in password reset link
+	resetLink := fmt.Sprintf("%s?user_id=%s", viper.GetString("auth.password_reset_link"), user.User.UserID.String())
+
+	log.Print("Reset_Password_link:", resetLink)
+
+	// TO-DO send link on the registered/verified email
+
+	c.JSON(http.StatusOK, SendResetPasswordLinkResponse{
+		Status: models.StatusSuccess(),
+	})
+}
+
+func ResetPassword(c *gin.Context) {
+	var request ResetPasswordRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, ResetPasswordResponse{
+			Status: models.StatusFailed("Invalid inputs"),
+		})
+		return
+	}
+
+	userRepo := env.FromContext(c).UserRepository
+	user, err := userRepo.GetUser(&userrepo.GetUserRequest{UserID: nanoid.NanoID(request.UserID)})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ResetPasswordResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusBadRequest, ResetPasswordResponse{
+			Status: models.StatusFailed("No user found with this user_id"),
+		})
+		return
+	}
+
+	passwordHash, err := util.HashPassword(request.NewPassword)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	updateUser := &userrepo.UpdateUserRequest{
+		UserID: nanoid.NanoID(request.UserID),
+		Values: map[string]interface{}{
+			"password_hash": passwordHash,
+		},
+	}
+
+	if _, err := userRepo.UpdateUser(updateUser); err != nil {
+		c.JSON(http.StatusInternalServerError, ResendOtpResponse{
+			Status: models.StatusSomethingWentWrong(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, ResetPasswordResponse{
+		Status: models.StatusSuccess(),
 	})
 }

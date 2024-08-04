@@ -2,14 +2,14 @@ package router
 
 import (
 	"context"
+	"net/http"
+
+	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/auth"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/checkin"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/event"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/location"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/user"
-	"net/http"
-
-	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/gin-gonic/gin"
 	"github.com/nanmu42/gzip"
 )
@@ -41,6 +41,12 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 	authRoutes := r.Group("/auth")
 	{
 		authRoutes.POST("", auth.AuthHandler)
+		authRoutes.POST("/register", auth.RegisterUser)
+		authRoutes.POST("/login", auth.LoginUser)
+		authRoutes.POST("/verifyOtp", auth.VerifyOtp)
+		authRoutes.POST("/resendOtp", auth.ResendOtp)
+		authRoutes.POST("/sendPasswordResetLink", auth.SendPasswordResetLink)
+		authRoutes.POST("/resetPassword", auth.ResetPassword)
 	}
 
 	eventGroup := r.Group("/event")
