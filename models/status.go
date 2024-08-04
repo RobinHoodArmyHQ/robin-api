@@ -30,3 +30,7 @@ func StatusSomethingWentWrong() *Status {
 func StatusTimedOut() *Status {
 	return StatusFailed("timed out")
 }
+
+func StatusUnauthorised() *Status {
+	return StatusFailed("Unauthorized")
+}

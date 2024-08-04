@@ -43,6 +43,12 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 	authRoutes := r.Group("/auth")
 	{
 		authRoutes.POST("", auth.AuthHandler)
+		authRoutes.POST("/register", auth.RegisterUser)
+		authRoutes.POST("/login", auth.LoginUser)
+		authRoutes.POST("/verifyOtp", auth.VerifyOtp)
+		authRoutes.POST("/resendOtp", auth.ResendOtp)
+		authRoutes.POST("/sendPasswordResetLink", auth.SendPasswordResetLink)
+		authRoutes.POST("/resetPassword", auth.ResetPassword)
 	}
 
 	r.Use(isUserLoggedIn)

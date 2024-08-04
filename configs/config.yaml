@@ -18,3 +18,10 @@ s3:
   endpoint: http://localstack:4566
   access_key_id: access_key_id
   secret_access_key: secret_access_key
+
+aws:
+  region: us-east-1
+
+auth:
+  jwt_secret: "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcyMTAxNzA5NCwiaWF0IjoxNzIxMDE3MDk0fQ._mUmD-4p7MyLJgZXLxniTCorJ_i7r3I04KhSC6JZCZo"
+  password_reset_link: "http://app.rha.com"
