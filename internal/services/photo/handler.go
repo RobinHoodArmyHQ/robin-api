@@ -33,6 +33,14 @@ func PhotoUploadHandler(c *gin.Context) {
 		return
 	}
 
+	// get the numeric event id
+	event, err := ev.EventRepository.GetEvent(&event.GetEventRequest{EventID: req.EventId})
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.StatusFailed(err.Error()))
+		return
+	}
+
+	// generate a new key to use as name for the uploaded file
 	key, err := nanoid.GetID()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, models.StatusFailed(err.Error()))
@@ -45,8 +53,9 @@ func PhotoUploadHandler(c *gin.Context) {
 		return
 	}
 
+	// upload file to S3
 	_, err = ev.S3Service().PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(viper.GetString("s3.bucket_checkin_photos")),
+		Bucket: aws.String(viper.GetString("s3.bucket_photos")),
 		Key:    aws.String(S3Prefix_CheckinPhotos + key.String()),
 		Body:   file,
 	})
@@ -55,13 +64,7 @@ func PhotoUploadHandler(c *gin.Context) {
 		return
 	}
 
-	// get the numeric event id
-	event, err := ev.EventRepository.GetEvent(&event.GetEventRequest{EventID: req.EventId})
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, models.StatusFailed(err.Error()))
-		return
-	}
-
+	// save the photo upload record in the database
 	err = ev.PhotoRepository().CreatePhotoUpload(&repositories.PhotoUploadsRequest{
 		S3Prefix: S3Prefix_CheckinPhotos,
 		S3Key:    key.String(),
