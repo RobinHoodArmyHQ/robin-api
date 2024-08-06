@@ -5,22 +5,23 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/checkin"
-	sqlEventRepo "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/event"
-	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/user"
-	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
-	"github.com/RobinHoodArmyHQ/robin-api/router"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/checkin"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/event"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/participants"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/user"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
+	"github.com/RobinHoodArmyHQ/robin-api/router"
 )
 
 func main() {
@@ -47,7 +48,8 @@ func main() {
 
 	ev := env.NewEnv(
 		env.WithSqlDBConn(dbConn),
-		env.WithEventRepository(sqlEventRepo.NewEventRepository(logger, dbConn)),
+		env.WithEventRepository(event.NewEventRepository(logger, dbConn)),
+		env.WithParticipantsRepository(participants.NewParticipantsRepository(logger, dbConn)),
 		env.WithUserRepository(user.New(logger, dbConn)),
 		env.WithCheckInRepository(checkin.New(logger, dbConn)),
 		env.WithLocationRepository(sql.NewLocationRepository(logger, dbConn)),

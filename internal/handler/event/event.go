@@ -100,3 +100,53 @@ func GetEventsHandler(c *gin.Context) {
 		Events: resp.Events,
 	})
 }
+
+func InterestedEventHandler(c *gin.Context) {
+	req := &InterestedEventRequest{}
+	res := &InterestedEventResponse{}
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		res.Status = models.StatusFailed(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	if req.EventID == "" {
+		res.Status = models.StatusFailed("Missing event id")
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	eventSvc := eventsvc.New()
+	err = eventSvc.MarkEventInterested(c, req.EventID)
+	if err != nil {
+		res.Status = models.StatusFailed(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	res.Status = models.StatusSuccess()
+	c.JSON(http.StatusOK, res)
+}
+
+func GetParticipantsHandler(c *gin.Context) {
+	res := &GetParticipantsResponse{}
+	eventID := c.Param("event_id")
+	if eventID == "" || eventID == "0" {
+		res.Status = models.StatusFailed("Missing event id")
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	eventSvc := eventsvc.New()
+	resp, err := eventSvc.GetEventParticipants(c, nanoid.NanoID(eventID))
+	if err != nil {
+		res.Status = models.StatusFailed(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	res.Status = models.StatusSuccess()
+	res.Participants = resp.Participants
+	c.JSON(http.StatusOK, res)
+}

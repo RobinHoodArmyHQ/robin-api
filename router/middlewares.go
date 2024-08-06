@@ -1,10 +1,10 @@
 package router
 
 import (
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/ctxmeta"
 	"net/http"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/util"
-	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,8 +29,10 @@ func isUserLoggedIn(c *gin.Context) {
 		return
 	}
 
-	c.Set("user_id", nanoid.NanoID(claims.UserInfo["user_id"].(string)))
-	c.Set("user_role", claims.UserInfo["user_role"].(string))
+	userId := claims.UserInfo["user_id"].(string)
+	role := claims.UserInfo["user_role"].(string)
+	ctxmeta.SetUser(c, userId)
+	ctxmeta.SetRole(c, role)
 	c.Next()
 }
 

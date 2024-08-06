@@ -26,7 +26,13 @@ func New(logger *zap.Logger, db *database.SqlDB) user.User {
 }
 
 func (i *impl) CreateUser(req *user.CreateUserRequest) (*user.CreateUserResponse, error) {
-	err := i.db.Master().Create(req.User).Error
+	id, err := nanoid.GetID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate nanoid: %v", err)
+	}
+	req.User.UserID = id
+
+	err = i.db.Master().Create(req.User).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %v", err)
 	}

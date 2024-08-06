@@ -4,16 +4,16 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"github.com/nanmu42/gzip"
+
+	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/auth"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/checkin"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/event"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/location"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/handler/user"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/services/photo"
-
-	"github.com/RobinHoodArmyHQ/robin-api/internal/env"
-	"github.com/gin-gonic/gin"
-	"github.com/nanmu42/gzip"
 )
 
 func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
@@ -53,12 +53,17 @@ func Initialize(ctx context.Context, ev *env.Env) *gin.Engine {
 
 	r.Use(isUserLoggedIn)
 	{
-		r.GET("/event/:event_id", event.GetEventHandler)
-		r.POST("/event", isAdminUser, event.CreateEventHandler)
 		r.GET("/events", event.GetEventsHandler)
-
 		r.POST("/photo", photo.PhotoUploadHandler)
+	}
 
+	eventGroup := r.Group("/event")
+	eventGroup.Use(isUserLoggedIn)
+	{
+		eventGroup.GET("/:event_id", event.GetEventHandler)
+		eventGroup.POST("/", isAdminUser, event.CreateEventHandler)
+		eventGroup.POST("/interested", event.InterestedEventHandler)
+		eventGroup.GET("/:event_id/participants", event.GetParticipantsHandler)
 	}
 
 	userGroup := r.Group("/user")

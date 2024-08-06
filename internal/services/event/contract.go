@@ -13,3 +13,7 @@ type GetEventFeedRequest struct {
 type GetEventFeedResponse struct {
 	Events []*models.Event
 }
+
+type GetEventParticipantsResponse struct {
+	Participants []*models.Participant
+}
