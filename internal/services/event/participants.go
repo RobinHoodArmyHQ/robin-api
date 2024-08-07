@@ -52,7 +52,7 @@ func (i *impl) MarkEventInterested(ctx context.Context, eventID nanoid.NanoID) e
 		EventID: eventResp.Event.ID,
 		UserID:  userResp.User.ID,
 		Status:  models.StatusInterested,
-		Role:    models.RoleParticipant,
+		Role:    models.RoleVolunteer,
 	}
 
 	if err = ev.ParticipantsRepository.CreateParticipant(ctx, &participants.CreateParticipantsRequest{

@@ -111,12 +111,6 @@ func InterestedEventHandler(c *gin.Context) {
 		return
 	}
 
-	if req.EventID == "" {
-		res.Status = models.StatusFailed("Missing event id")
-		c.AbortWithStatusJSON(http.StatusBadRequest, res)
-		return
-	}
-
 	eventSvc := eventsvc.New()
 	err = eventSvc.MarkEventInterested(c, req.EventID)
 	if err != nil {
@@ -132,7 +126,7 @@ func InterestedEventHandler(c *gin.Context) {
 func GetParticipantsHandler(c *gin.Context) {
 	res := &GetParticipantsResponse{}
 	eventID := c.Param("event_id")
-	if eventID == "" || eventID == "0" {
+	if eventID == "" {
 		res.Status = models.StatusFailed("Missing event id")
 		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return

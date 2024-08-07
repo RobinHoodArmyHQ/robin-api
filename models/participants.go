@@ -12,7 +12,7 @@ const (
 	StatusNotGoing   ParticipantStatus = "NOT_GOING"
 	StatusCheckedIn  ParticipantStatus = "CHECKED_IN"
 
-	RoleParticipant ParticipantRole = "PARTICIPANT"
+	RoleVolunteer ParticipantRole = "VOLUNTEER"
 )
 
 type Participant struct {
@@ -23,6 +23,6 @@ type Participant struct {
 	Event     *Event            `json:"event,omitempty" gorm:"foreignKey:ID;references:EventID"`
 	Status    ParticipantStatus `json:"status,omitempty" gorm:"type:varchar(20);default:'INTERESTED'"`
 	Role      ParticipantRole   `json:"role,omitempty"`
-	CreatedAt time.Time         `json:"created_at,omitempty" gorm:"autoCreateTime"`
-	UpdatedAt time.Time         `json:"updated_at,omitempty" gorm:"autoUpdateTime"`
+	CreatedAt time.Time         `json:"created_at,omitempty"`
+	UpdatedAt time.Time         `json:"updated_at,omitempty"`
 }

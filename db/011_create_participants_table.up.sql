@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `participants` (
     `event_id` bigint unsigned NOT NULL,
     `user_id` bigint unsigned NOT NULL,
     `status` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci DEFAULT 'INTERESTED',
-    `role` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci DEFAULT 'PARTICIPANT',
+    `role` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci DEFAULT 'VOLUNTEER',
     `created_at` datetime DEFAULT NULL,
     `updated_at` datetime DEFAULT NULL,
     PRIMARY KEY (`id`),

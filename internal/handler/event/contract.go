@@ -23,7 +23,7 @@ type GetEventsResponse struct {
 }
 
 type InterestedEventRequest struct {
-	EventID nanoid.NanoID `json:"event_id"`
+	EventID nanoid.NanoID `json:"event_id" binding:"required"`
 }
 
 type InterestedEventResponse struct {
