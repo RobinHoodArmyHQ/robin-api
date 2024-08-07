@@ -21,3 +21,16 @@ type GetEventsResponse struct {
 	Status *models.Status  `json:"status,omitempty"`
 	Events []*models.Event `json:"events,omitempty"`
 }
+
+type InterestedEventRequest struct {
+	EventID nanoid.NanoID `json:"event_id" binding:"required"`
+}
+
+type InterestedEventResponse struct {
+	Status *models.Status `json:"status,omitempty"`
+}
+
+type GetParticipantsResponse struct {
+	Status       *models.Status        `json:"status,omitempty"`
+	Participants []*models.Participant `json:"participants,omitempty"`
+}
