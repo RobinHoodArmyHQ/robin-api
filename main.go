@@ -10,6 +10,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/checkin"
 	sqlEventRepo "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/event"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/user"
+	userverification "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/sql/userVerification"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
 	"github.com/RobinHoodArmyHQ/robin-api/router"
 	"github.com/aws/aws-sdk-go/aws"
@@ -53,6 +54,7 @@ func main() {
 		env.WithLocationRepository(sql.NewLocationRepository(logger, dbConn)),
 		env.WithPhotoRepository(sql.NewPhotoRepository(logger, dbConn)),
 		env.WithS3Service(initializeS3()),
+		env.WithUserVerificationRepository(userverification.New(logger, dbConn)),
 	)
 
 	r := router.Initialize(ctx, ev)
