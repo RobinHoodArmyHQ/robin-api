@@ -7,12 +7,9 @@ import (
 
 type User interface {
 	CreateUser(req *CreateUserRequest) (*CreateUserResponse, error)
-	CreateUnverifiedUser(req *CreateUnverifiedUserRequest) (*CreateUnverifiedUserResponse, error)
 	GetUser(req *GetUserRequest) (*GetUserResponse, error)
 	GetUserByEmail(req *GetUserByEmailRequest) (*GetUserByEmailResponse, error)
 	UpdateUser(req *UpdateUserRequest) (*UpdateUserResponse, error)
-	GetUnverifiedUserByUserID(req *GetUnverifiedUserByUserIdRequest) (*GetUnverifiedUserByUserIdResponse, error)
-	UpdateUnverifiedUser(req *UpdateUnverifiedUserRequest) (*UpdateUnverifiedUserResponse, error)
 }
 
 type CreateUserRequest struct {
@@ -46,29 +43,4 @@ type GetUserByEmailRequest struct {
 
 type GetUserByEmailResponse struct {
 	User *models.User `json:"user"`
-}
-
-type GetUnverifiedUserByUserIdRequest struct {
-	UserID nanoid.NanoID `json:"user_id"`
-}
-
-type GetUnverifiedUserByUserIdResponse struct {
-	User *models.UserVerification `json:"user"`
-}
-
-type CreateUnverifiedUserRequest struct {
-	User *models.UserVerification `json:"user"`
-}
-
-type CreateUnverifiedUserResponse struct {
-	UserID nanoid.NanoID `json:"user_id"`
-}
-
-type UpdateUnverifiedUserRequest struct {
-	UserID nanoid.NanoID          `json:"user_id"`
-	Values map[string]interface{} `json:"values"`
-}
-
-type UpdateUnverifiedUserResponse struct {
-	Users *[]models.UserVerification
 }
