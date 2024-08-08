@@ -7,6 +7,7 @@ import (
 
 type UserVerification interface {
 	GetUserByUserID(req *GetUserByUserIdRequest) (*GetUserByUserIdResponse, error)
+	GetVerifiedUserByUserID(req *GetVerifiedUserByUserIDRequest) (*GetVerifiedUserByUserIDResponse, error)
 	CreateUser(req *CreateUserRequest) (*CreateUserResponse, error)
 	UpdateUser(req *UpdateUserRequest) (*UpdateUserResponse, error)
 }
@@ -34,4 +35,12 @@ type UpdateUserRequest struct {
 
 type UpdateUserResponse struct {
 	Users []*models.UserVerification
+}
+
+type GetVerifiedUserByUserIDRequest struct {
+	UserID nanoid.NanoID `json:"user_id"`
+}
+
+type GetVerifiedUserByUserIDResponse struct {
+	User *models.UserVerification `json:"user"`
 }

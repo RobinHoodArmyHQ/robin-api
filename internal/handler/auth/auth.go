@@ -429,7 +429,7 @@ func ResetPassword(c *gin.Context) {
 	// check if link is expired.
 	userVerificationRepo := env.FromContext(c).UserVerificationRepository
 
-	verificationUser, err := userVerificationRepo.GetUserByUserID(&userverification.GetUserByUserIdRequest{UserID: nanoid.NanoID(request.UserID)})
+	verificationUser, err := userVerificationRepo.GetVerifiedUserByUserID(&userverification.GetVerifiedUserByUserIDRequest{UserID: nanoid.NanoID(request.UserID)})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ResetPasswordResponse{
 			Status: models.StatusSomethingWentWrong(),
@@ -440,13 +440,6 @@ func ResetPassword(c *gin.Context) {
 	if verificationUser == nil || verificationUser.User == nil {
 		c.JSON(http.StatusBadRequest, ResetPasswordResponse{
 			Status: models.StatusFailed("No user found with this user_id"),
-		})
-		return
-	}
-
-	if verificationUser.User.IsVerified != 1 {
-		c.JSON(http.StatusBadRequest, ResetPasswordResponse{
-			Status: models.StatusFailed("Unverified user found"),
 		})
 		return
 	}

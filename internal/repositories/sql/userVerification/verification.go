@@ -25,7 +25,7 @@ func New(logger *zap.Logger, db *database.SqlDB) userverification.UserVerificati
 	}
 }
 
-func (i impl) CreateUser(req *userverification.CreateUserRequest) (*userverification.CreateUserResponse, error) {
+func (i *impl) CreateUser(req *userverification.CreateUserRequest) (*userverification.CreateUserResponse, error) {
 	var err error
 	req.User.UserID, err = nanoid.GetID()
 
@@ -41,7 +41,7 @@ func (i impl) CreateUser(req *userverification.CreateUserRequest) (*userverifica
 	return &userverification.CreateUserResponse{UserID: req.User.UserID}, nil
 }
 
-func (i impl) GetUserByUserID(req *userverification.GetUserByUserIdRequest) (*userverification.GetUserByUserIdResponse, error) {
+func (i *impl) GetUserByUserID(req *userverification.GetUserByUserIdRequest) (*userverification.GetUserByUserIdResponse, error) {
 	userData := &models.UserVerification{}
 	exec := i.db.Master().First(userData, "user_id=?", req.UserID)
 
@@ -58,9 +58,26 @@ func (i impl) GetUserByUserID(req *userverification.GetUserByUserIdRequest) (*us
 	return &userverification.GetUserByUserIdResponse{User: userData}, nil
 }
 
-func (i impl) UpdateUser(req *userverification.UpdateUserRequest) (*userverification.UpdateUserResponse, error) {
-	model := []*models.UserVerification{}
-	exec := i.db.Master().Model(model).Clauses(clause.Returning{}).Where("user_id=?", req.UserID).Updates(req.Values)
+func (i *impl) GetVerifiedUserByUserID(req *userverification.GetVerifiedUserByUserIDRequest) (*userverification.GetVerifiedUserByUserIDResponse, error) {
+	user := &models.UserVerification{}
+	exec := i.db.Master().Where(&models.UserVerification{UserID: req.UserID, IsVerified: 1}).Find(user)
+
+	if errors.Is(exec.Error, gorm.ErrRecordNotFound) {
+		i.logger.Error("verified user not found", zap.String("user_id", req.UserID.String()))
+		return nil, nil
+	}
+
+	if exec.Error != nil {
+		i.logger.Error("ERROR_GET_VERIFIED_USER_BY_USER_ID", zap.Error(exec.Error))
+		return nil, exec.Error
+	}
+
+	return &userverification.GetVerifiedUserByUserIDResponse{User: user}, nil
+}
+
+func (i *impl) UpdateUser(req *userverification.UpdateUserRequest) (*userverification.UpdateUserResponse, error) {
+	users := []*models.UserVerification{}
+	exec := i.db.Master().Model(users).Clauses(clause.Returning{}).Where("user_id=?", req.UserID).Updates(req.Values)
 
 	if exec.Error != nil {
 		i.logger.Error("ERROR_UPDATE_USER_VERIFICATIONS", zap.Error(exec.Error))
@@ -68,7 +85,7 @@ func (i impl) UpdateUser(req *userverification.UpdateUserRequest) (*userverifica
 	}
 
 	records := userverification.UpdateUserResponse{
-		Users: model,
+		Users: users,
 	}
 
 	return &records, nil
