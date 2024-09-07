@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/RobinHoodArmyHQ/robin-api/internal/util"
-	"github.com/RobinHoodArmyHQ/robin-api/pkg/nanoid"
+	"github.com/RobinHoodArmyHQ/robin-api/pkg/ctxmeta"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,8 +43,8 @@ func isUserLoggedIn(c *gin.Context) {
 		return
 	}
 
-	c.Set("user_id", nanoid.NanoID(claims.UserId))
-	c.Set("user_roles", claims.UserRoles)
+	ctxmeta.SetUser(c, claims.UserId)
+	ctxmeta.SetRole(c, claims.UserRoles)
 	c.Next()
 }
 

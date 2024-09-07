@@ -6,6 +6,7 @@ import (
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/checkin"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/event"
+	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/participants"
 	"github.com/RobinHoodArmyHQ/robin-api/internal/repositories/user"
 	userverification "github.com/RobinHoodArmyHQ/robin-api/internal/repositories/userVerification"
 	"github.com/RobinHoodArmyHQ/robin-api/pkg/database"
@@ -24,6 +25,7 @@ type Env struct {
 	UserRepository             user.User
 	CheckInRepository          checkin.CheckIn
 	LocationRepository         repositories.LocationRepository
+	ParticipantsRepository     participants.ParticipantsRepository
 	UserVerificationRepository userverification.UserVerification
 
 	photoRepository repositories.PhotoRepository
@@ -94,6 +96,12 @@ func WithPhotoRepository(repo repositories.PhotoRepository) func(*Env) {
 
 func (env *Env) PhotoRepository() repositories.PhotoRepository {
 	return env.photoRepository
+}
+
+func WithParticipantsRepository(repo participants.ParticipantsRepository) func(*Env) {
+	return func(env *Env) {
+		env.ParticipantsRepository = repo
+	}
 }
 
 func WithS3Service(svc *s3.S3) func(*Env) {

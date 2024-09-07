@@ -17,6 +17,14 @@ migrate:
 		-database "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DATABASE}" \
 		up
 
+migrate-revert:
+	@read -p "Enter the number of migrations to revert: " count; \
+	docker run -v ${PWD}/db:/migrations --network host \
+		migrate/migrate \
+		-path=/migrations/ \
+		-database "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DATABASE}" \
+		down $$count
+
 create-migration:
 	docker run -v ${PWD}/db:/migrations --network host \
 		migrate/migrate \

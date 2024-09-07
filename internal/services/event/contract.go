@@ -14,3 +14,7 @@ type GetEventFeedResponse struct {
 	Events []*models.Event
 	Count  int64
 }
+
+type GetEventParticipantsResponse struct {
+	Participants []*models.Participant
+}
